@@ -1,5 +1,9 @@
 {
   "name": "Mediguard",
+  "remoteEnv": {
+    "DATABASE_PRISMA_URL": "file:./db.sqlite",
+    "DATABASE_URL_NON_POOLING": "file:./db.sqlite"
+  },
   "postCreateCommand": "npm install -g pnpm && pnpm install",    
-  "postStartCommand": "pnpm prisma generate"
+  "postStartCommand": "pnpm prisma db push && pnpm prisma generate && pnpm dev"
 }

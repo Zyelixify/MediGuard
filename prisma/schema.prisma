@@ -45,7 +45,9 @@ model Medication {
   description String?
   dosage      String
   frequency   String
-  endDate     DateTime?
+
+  startDate   DateTime
+  endDate     DateTime
 
   account     Account @relation(fields: [accountId], references: [id])
   accountId   String
@@ -71,8 +73,9 @@ model Event {
   type      String
   message   String
 
+  key       String
+  timestamp DateTime @default(now())
+
   account   Account @relation(fields: [accountId], references: [id])
   accountId String
-
-  createdAt DateTime @default(now())
 }
