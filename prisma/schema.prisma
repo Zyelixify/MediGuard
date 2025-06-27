@@ -18,10 +18,10 @@ model Account {
   password String
   role     String  @default("user")
 
-  events     Event[]
+  events Event[]
 
   caretakerOf CaretakerRelation[] @relation("CaretakerOf")
-  caretakers CaretakerRelation[] @relation("CaretakenBy")
+  caretakers  CaretakerRelation[] @relation("CaretakenBy")
 
   medications Medication[]
 
@@ -33,28 +33,28 @@ model CaretakerRelation {
   account   Account @relation("CaretakenBy", fields: [accountId], references: [id])
   accountId String
 
-  caretaker Account @relation("CaretakerOf", fields: [caretakerId], references: [id])
+  caretaker   Account @relation("CaretakerOf", fields: [caretakerId], references: [id])
   caretakerId String
 
   createdAt DateTime @default(now())
 }
 
 model Medication {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
   description String?
   dosage      String
   frequency   String
 
-  startDate   DateTime
-  endDate     DateTime
+  startDate DateTime
+  endDate   DateTime
 
-  account     Account @relation(fields: [accountId], references: [id])
-  accountId   String
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String
 
   scheduledMedications ScheduledMedication[]
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model ScheduledMedication {
@@ -62,16 +62,16 @@ model ScheduledMedication {
   scheduledAt DateTime
   taken       Boolean  @default(false)
 
-  medication  Medication @relation(fields: [medicationId], references: [id])
+  medication   Medication @relation(fields: [medicationId], references: [id])
   medicationId String
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Event {
-  id        String  @id @default(uuid())
-  type      String
-  message   String
+  id      String @id @default(uuid())
+  type    String
+  message String
 
   key       String
   timestamp DateTime @default(now())
