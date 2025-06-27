@@ -5,5 +5,13 @@
     "DATABASE_URL_NON_POOLING": "file:./db.sqlite"
   },
   "postCreateCommand": "npm install -g pnpm && pnpm install",    
-  "postStartCommand": "pnpm prisma db push && pnpm prisma generate"
+  "postStartCommand": "pnpm prisma db push && pnpm prisma generate",
+  "postAttachCommand": "pnpm run dev",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Nuxt Dev Server",
+      "onAutoForward": "openBrowser"
+    }
+  }
 }
