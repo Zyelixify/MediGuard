@@ -27,5 +27,33 @@ export default () => {
         queryFn: () => $trpc.event.findManyEvent.query(unref(queryArgs) ?? {}),
       }),
     },
+    medication: {
+      all: (queryArgs: MaybeRef<Prisma.MedicationFindManyArgs>) => useQuery({
+        queryKey: ['medication', 'all', queryArgs],
+        queryFn: () => $trpc.medication.findManyMedication.query(unref(queryArgs) ?? {}),
+      }),
+    },
+    scheduledMedication: {
+      all: (queryArgs: MaybeRef<Prisma.ScheduledMedicationFindManyArgs>) => useQuery({
+        queryKey: ['scheduledMedication', 'all', queryArgs],
+        queryFn: () => $trpc.scheduledMedication.findManyMedication.query(unref(queryArgs) ?? {}),
+      }),
+    },
+    caretakerRelation: {
+      all: (queryArgs: MaybeRef<Prisma.CaretakerRelationFindManyArgs>) => useQuery({
+        queryKey: ['caretakerRelation', 'all', queryArgs],
+        queryFn: () => $trpc.caretakerRelation.findManyCaretakerRelations.query(unref(queryArgs) ?? {}),
+      }),
+      byId: (id: MaybeRef<string | undefined | null>) => useQuery({
+        queryKey: ['caretakerRelation', 'byId', id],
+        queryFn: () => {
+          const idValue = unref(id)
+          if (!idValue) {
+            return null
+          }
+          return $trpc.caretakerRelation.findOneCaretakerRelations.query({ id: idValue })
+        }
+      }),
+    },
   }
 }

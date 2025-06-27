@@ -2,7 +2,7 @@
 import z from 'zod'
 
 definePageMeta({
-  layout: 'unauthenticated',
+  layout: 'simple',
   auth: {
     unauthenticatedOnly: true,
     navigateAuthenticatedTo: '/',

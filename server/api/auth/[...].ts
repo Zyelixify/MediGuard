@@ -60,6 +60,7 @@ export default NuxtAuthHandler({
             id: true,
             role: true,
             email: true,
+            name: true,
           },
         })
         return {
@@ -80,6 +81,7 @@ declare module 'next-auth' {
       id: string
       role: string
       email: string
+      name: string
     }
   }
 }

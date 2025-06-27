@@ -29,3 +29,9 @@ export const updateMedicationSchema = createMedicationSchema.merge(idObjectSchem
 
 // Scheduled Medication
 export const updateScheduledMedicationTakenSchema = idObjectSchema.merge(z.object({ taken: z.boolean() }))
+
+// Caretaker Relation
+export const createCaretakerRelationSchema = z.object({
+  patientId: z.string(),
+  caretakerId: z.string(),
+})

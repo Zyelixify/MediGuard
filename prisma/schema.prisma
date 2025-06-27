@@ -20,8 +20,8 @@ model Account {
 
   events Event[]
 
-  caretakerOf CaretakerRelation[] @relation("CaretakerOf")
-  caretakers  CaretakerRelation[] @relation("CaretakenBy")
+  caretakerOf CaretakerRelation[] @relation("CaretakerRelationCaretaker")
+  caretakers  CaretakerRelation[] @relation("CaretakerRelationPatient")
 
   medications Medication[]
 
@@ -29,12 +29,16 @@ model Account {
 }
 
 model CaretakerRelation {
-  id        String  @id @default(uuid())
-  account   Account @relation("CaretakenBy", fields: [accountId], references: [id])
-  accountId String
+  id          String  @id @default(uuid())
+  isConfirmed Boolean @default(false)
 
-  caretaker   Account @relation("CaretakerOf", fields: [caretakerId], references: [id])
+  patient   Account @relation("CaretakerRelationPatient", fields: [patientId], references: [id])
+  patientId String
+
+  caretaker   Account @relation("CaretakerRelationCaretaker", fields: [caretakerId], references: [id])
   caretakerId String
+
+  events Event[] 
 
   createdAt DateTime @default(now())
 }
@@ -76,6 +80,12 @@ model Event {
   key       String
   timestamp DateTime @default(now())
 
+  resolved Boolean @default(false)
+
   account   Account @relation(fields: [accountId], references: [id])
   accountId String
+
+  // Optional fields for context
+  caretakerRelation CaretakerRelation? @relation(fields: [caretakerRelationId], references: [id])
+  caretakerRelationId String?
 }

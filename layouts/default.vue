@@ -36,10 +36,10 @@ useHead({ title: appName })
     </div>
 
     <!-- Mobile Layout -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50">
-      <div class="px-4 py-2">
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50 ">
+      <div class="px-4 py-2 flex justify-between">
         <UNavigationMenu
-          :items="[...sidebarConfig[0], ...sidebarConfig[1]]"
+          :items="sidebarConfig[0]"
           orientation="horizontal"
         />
       </div>
@@ -49,8 +49,16 @@ useHead({ title: appName })
       <div class="md:hidden">
         <div class="relative z-10 flex-shrink-0 flex h-16 bg-white dark:bg-gray-800 shadow border-b border-gray-200 dark:border-gray-700">
           <div class="flex-1 p-4 flex justify-between">
-            <div class="flex-1 flex justify-center items-center w-full">
-              <Logo class="h-8" />
+            <div class="flex-1 flex justify-between items-center w-full">
+              <div class="flex items-center gap-2">
+                <UIcon name="ic:twotone-shield" class="w-6 h-6 text-slate-400" />
+                <Logo class="h-8 mb-2" collapsed />
+              </div>
+
+              <UNavigationMenu
+                :items="sidebarConfig[1]"
+                orientation="horizontal"
+              />
             </div>
           </div>
         </div>
