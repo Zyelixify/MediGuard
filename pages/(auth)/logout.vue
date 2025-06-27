@@ -2,9 +2,7 @@
 definePageMeta({ layout: 'unauthenticated', })
 
 const { signOut } = useAuth()
-setTimeout(() => {
-  signOut()
-}, 1000)
+setTimeout(signOut, 1000)
 </script>
 
 <template>
