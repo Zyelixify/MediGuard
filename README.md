@@ -20,7 +20,7 @@ Project was bootstrapped using [sidebase](https://sidebase.io).
 - Make sure to install the dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 - Development Server
@@ -28,7 +28,7 @@ npm install
 Start the development server on http://localhost:3000
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 - Production
@@ -36,7 +36,7 @@ npm run dev
 Build the application for production:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ## Starting the project on GitHub Codespaces
