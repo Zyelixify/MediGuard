@@ -1,0 +1,49 @@
+{
+  "name": "mediguard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "NODE_ENV=production node .output/server/index.mjs",
+    "typecheck": "nuxt typecheck",
+    "lint:fix": "eslint . --fix",
+    "lint": "oxlint --deny-warnings -D correctness -D suspicious -D perf && eslint --max-warnings 0 .",
+    "prisma:switch": "sed -i 's/sqlite/postgresql/g' prisma/schema.prisma",
+    "build": "pnpm prisma:switch && prisma generate && prisma db push --accept-data-loss && nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxt/ui": "^3.2.0",
+    "@prisma/client": "^5.14.0",
+    "@tanstack/vue-query": "^5.81.2",
+    "@trpc/client": "^10.45.2",
+    "@trpc/server": "^10.45.2",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
+    "nuxt": "^3.11.2",
+    "nuxt-icon": "^0.6.10",
+    "superjson": "^2.2.1",
+    "trpc-nuxt": "^0.10.21",
+    "trpc-shield": "^0.4.4",
+    "vue": "^3.4.27",
+    "vue-router": "^4.3.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.19.2",
+    "@sidebase/nuxt-auth": "^0.7.2",
+    "@types/node": "^20.13.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.0",
+    "oxlint": "^0.2.18",
+    "prisma": "^5.14.0",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.4.5",
+    "vue-tsc": "^2.0.19"
+  },
+  "peerDependencies": {
+    "next-auth": "4.21.1"
+  }
+}
