@@ -3,6 +3,7 @@
 </h1>
 
 ## Technologies
+Project was bootstrapped using [sidebase](https://sidebase.io).
 - TypeScript
 - Frontend:
   - Nuxt 3/Vue 3
