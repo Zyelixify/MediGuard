@@ -5,5 +5,5 @@
     "DATABASE_URL_NON_POOLING": "file:./db.sqlite"
   },
   "postCreateCommand": "npm install -g pnpm && pnpm install",    
-  "postStartCommand": "pnpm prisma db push && pnpm prisma generate && pnpm dev"
+  "postStartCommand": "pnpm prisma db push && pnpm prisma generate"
 }
