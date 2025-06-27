@@ -39,7 +39,7 @@ Build the application for production:
 npm run build
 ```
 
-- Starting the project on GitHub Codespaces
+## Starting the project on GitHub Codespaces
 First, wait for the set-up commands to finish for `postCreateCommand` and `postStartCommand`. Once they do, you can start the project by running the following command in a Terminal:
 
 ```bash
