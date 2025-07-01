@@ -35,5 +35,18 @@ export default defineNuxtConfig({
   },
   devtools: {
     enabled: false,
+  },
+  ui: {
+    theme: {
+      colors: [
+        'primary',
+        'secondary',
+        'tertiary',
+        'info',
+        'success',
+        'warning',
+        'error'
+      ]
+    }
   }
 })

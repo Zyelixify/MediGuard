@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import z from 'zod'
+import type { TabsItem } from '@nuxt/ui'
 
 definePageMeta({
   layout: 'simple',
@@ -10,16 +11,18 @@ definePageMeta({
 })
 useHead({ title: `Login` })
 
+const rolesSchema = z.enum(['user', 'caretaker'])
 const schema = z.object({
   email: z.string().email().min(1, 'Email is required'),
   password: z.string().min(8, 'Password must be at least 8 characters long'),
-  type: z.enum(['login', 'signup']).optional(),
+  role: rolesSchema,
 })
 type Schema = z.infer<typeof schema>
 
 const formData = reactive<Schema>({
   email: '',
   password: '',
+  role: 'user',
 })
 
 const { signIn } = useAuth()
@@ -35,6 +38,8 @@ async function submitHandler() {
       title: 'Error',
       description: res.error,
       duration: 5000,
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
     })
   }
   else {
@@ -42,23 +47,40 @@ async function submitHandler() {
       title: 'Success',
       description: 'You have successfully logged in.',
       duration: 5000,
+      color: 'success',
+      icon: 'i-heroicons-check-circle',
     })
     navigateTo('/')
   }
 
   isLoading.value = false
 }
+
+const tabs = ref<TabsItem[]>([
+  {
+    label: 'User',
+    icon: 'ic:baseline-person',
+    value: 'user',
+  },
+  {
+    label: 'Caretaker',
+    icon: 'ic:baseline-medical-services',
+    value: 'caretaker',
+  }
+])
 </script>
 
 <template>
   <div class="flex flex-grow flex-col items-center justify-center w-full max-w-md mx-auto gap-6">
     <Logo />
-    <UCard class="w-full">
+    <Card class="w-full">
       <template #header>
         <h1 class="text-center text-xl font-semibold">
           Login | Signup
         </h1>
       </template>
+
+      <UTabs v-model="formData.role" :content="false" variant="link" :items="tabs" class="w-full mb-4" :ui="{ trigger: 'grow' }" />
 
       <UForm :schema :state="formData" @submit="submitHandler">
         <div class="flex flex-col gap-4">
@@ -77,7 +99,7 @@ async function submitHandler() {
           <UButton
             type="submit"
             :loading="isLoading"
-            class="w-full mt-4 justify-center"
+            class="w-full justify-center"
             size="lg"
             variant="solid"
             color="primary"
@@ -86,6 +108,6 @@ async function submitHandler() {
           </UButton>
         </div>
       </UForm>
-    </UCard>
+    </Card>
   </div>
 </template>

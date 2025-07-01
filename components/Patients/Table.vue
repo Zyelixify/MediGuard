@@ -37,7 +37,7 @@ const columns: TableColumn<CaretakerRelationGetMany>[] = [
 </script>
 
 <template>
-  <UCard class="w-full ">
+  <Card class="w-full">
     <template #header>
       <h1 class="text-center text-xl font-semibold">
         Patients
@@ -47,5 +47,5 @@ const columns: TableColumn<CaretakerRelationGetMany>[] = [
     <div class="p-4">
       <UTable :data="patients" :columns="columns" class="flex-1" />
     </div>
-  </ucard>
+  </Card>
 </template>

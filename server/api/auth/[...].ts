@@ -8,6 +8,7 @@ import 'next-auth'
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
+  role: z.enum(['user', 'caretaker']).default('user'),
 })
 export default NuxtAuthHandler({
   secret: process.env.AUTH_SECRET || 'testSecret',
@@ -23,22 +24,26 @@ export default NuxtAuthHandler({
         password: { label: 'Password', type: 'password' },
       },
       authorize: async (credentials: any) => {
-        const { email, password } = loginSchema.parse(credentials)
+        const { email, password, role } = loginSchema.parse(credentials)
         let user = await getPrisma().account.findUnique({
           where: { email },
-          select: { id: true, password: true },
+          select: { id: true, password: true, role: true },
         })
 
         if (!user) {
           const hashedPassword = await bcrypt.hash(password, 10)
           user = await getPrisma().account.create({
-            data: { email, password: hashedPassword },
-            select: { id: true, password: true },
+            data: { email, password: hashedPassword, role },
+            select: { id: true, password: true, role: true },
           })
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password)
         if (isPasswordValid) {
+          if (user.role !== role) {
+            throw new Error('Role mismatch. Please ensure you are logging as the correct role.')
+          }
+
           return { id: user.id }
         }
         return null

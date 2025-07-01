@@ -1,6 +1,230 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-@theme static {
+@theme {
   --font-sans: 'Roboto', sans-serif;
+  
+  /* Official Nord Colors (nord0-nord15) */
+  --nord0: #2E3440;   /* Polar Night - darkest */
+  --nord1: #3B4252;   /* Polar Night - dark */
+  --nord2: #434C5E;   /* Polar Night - medium */
+  --nord3: #4C566A;   /* Polar Night - light */
+  --nord4: #D8DEE9;   /* Snow Storm - dark */
+  --nord5: #E5E9F0;   /* Snow Storm - medium */
+  --nord6: #ECEFF4;   /* Snow Storm - light */
+  --nord7: #8FBCBB;   /* Frost - cyan */
+  --nord8: #88C0D0;   /* Frost - bright cyan */
+  --nord9: #81A1C1;   /* Frost - blue */
+  --nord10: #5E81AC;  /* Frost - dark blue */
+  --nord11: #BF616A;  /* Aurora - red */
+  --nord12: #D08770;  /* Aurora - orange */
+  --nord13: #EBCB8B;  /* Aurora - yellow */
+  --nord14: #A3BE8C;  /* Aurora - green */
+  --nord15: #B48EAD;  /* Aurora - purple */
+  
+  /* Nord Polar Night (Neutral colors) */
+  --color-nord-polar-50: #f4f6f8;
+  --color-nord-polar-100: var(--nord6);   /* #ECEFF4 */
+  --color-nord-polar-200: var(--nord5);   /* #E5E9F0 */
+  --color-nord-polar-300: var(--nord4);   /* #D8DEE9 */
+  --color-nord-polar-400: #8b9bb1;
+  --color-nord-polar-500: #697286;
+  --color-nord-polar-600: #5a6478;
+  --color-nord-polar-700: var(--nord3);   /* #4C566A */
+  --color-nord-polar-800: var(--nord2);   /* #434C5E */
+  --color-nord-polar-900: var(--nord1);   /* #3B4252 */
+  --color-nord-polar-950: var(--nord0);   /* #2E3440 */
+
+  /* Nord Frost (Primary colors) */
+  --color-nord-50: #daf8ff;
+  --color-nord-100: #c1e4eb;
+  --color-nord-200: #a8d0d7;
+  --color-nord-300: var(--nord7);   /* #8FBCBB */
+  --color-nord-400: var(--nord8);   /* #88C0D0 */
+  --color-nord-500: var(--nord9);   /* #81A1C1 */
+  --color-nord-600: #6e91bc;
+  --color-nord-700: var(--nord10);  /* #5E81AC */
+  --color-nord-800: #4d6a80;
+  --color-nord-900: #3d5a6b;
+  --color-nord-950: #2d4a56;
+
+  /* Nord Aurora Green (Success) */
+  --color-nord-green-50: #f0f9f4;
+  --color-nord-green-100: #dcf4e6;
+  --color-nord-green-200: #bce9d1;
+  --color-nord-green-300: #8ed8b4;
+  --color-nord-green-400: #5cc190;
+  --color-nord-green-500: var(--nord14);   /* #A3BE8C */
+  --color-nord-green-600: #7fa572;
+  --color-nord-green-700: #6b8c5f;
+  --color-nord-green-800: #556f4c;
+  --color-nord-green-900: #455b40;
+  --color-nord-green-950: #253320;
+
+  /* Nord Aurora Yellow (Warning) */
+  --color-nord-yellow-50: #fefbf3;
+  --color-nord-yellow-100: #fdf5e1;
+  --color-nord-yellow-200: #fbebc2;
+  --color-nord-yellow-300: #f7dc97;
+  --color-nord-yellow-400: var(--nord13);  /* #EBCB8B */
+  --color-nord-yellow-500: #e6b86a;
+  --color-nord-yellow-600: #d19b4d;
+  --color-nord-yellow-700: #ad7c3f;
+  --color-nord-yellow-800: #8c6239;
+  --color-nord-yellow-900: #755131;
+  --color-nord-yellow-950: #432918;
+
+  /* Nord Aurora Red (Error) */
+  --color-nord-red-50: #fef2f2;
+  --color-nord-red-100: #fee2e2;
+  --color-nord-red-200: #fecdd3;
+  --color-nord-red-300: #fca5a5;
+  --color-nord-red-400: #f87171;
+  --color-nord-red-500: var(--nord11);     /* #BF616A */
+  --color-nord-red-600: #a1525a;
+  --color-nord-red-700: #85454c;
+  --color-nord-red-800: #6f3a40;
+  --color-nord-red-900: #5c3237;
+  --color-nord-red-950: #32181c;
+
+  /* Nord Aurora Orange (Info) */
+  --color-nord-orange-50: #fff7ed;
+  --color-nord-orange-100: #ffedd5;
+  --color-nord-orange-200: #fed7aa;
+  --color-nord-orange-300: #fdba74;
+  --color-nord-orange-400: #fb923c;
+  --color-nord-orange-500: var(--nord12);  /* #D08770 */
+  --color-nord-orange-600: #bb6d5a;
+  --color-nord-orange-700: #9a5647;
+  --color-nord-orange-800: #7c453b;
+  --color-nord-orange-900: #653b32;
+  --color-nord-orange-950: #371e19;
+
+  /* Nord Aurora Purple */
+  --color-nord-purple-50: #faf5ff;
+  --color-nord-purple-100: #f3e8ff;
+  --color-nord-purple-200: #e9d5ff;
+  --color-nord-purple-300: #d8b4fe;
+  --color-nord-purple-400: #c084fc;
+  --color-nord-purple-500: var(--nord15);  /* #B48EAD */
+  --color-nord-purple-600: #9d6f96;
+  --color-nord-purple-700: #825a7e;
+  --color-nord-purple-800: #6b4b67;
+  --color-nord-purple-900: #573e54;
+  --color-nord-purple-950: #352632;
+}
+
+/* Nuxt UI Design System Integration with Official Nord Colors */
+:root {
+  /* Map official Nord colors to Nuxt UI color aliases */
+  --ui-color-primary-50: var(--color-nord-50);
+  --ui-color-primary-100: var(--color-nord-100);
+  --ui-color-primary-200: var(--color-nord-200);
+  --ui-color-primary-300: var(--color-nord-300);
+  --ui-color-primary-400: var(--color-nord-400);
+  --ui-color-primary-500: var(--color-nord-500);
+  --ui-color-primary-600: var(--color-nord-600);
+  --ui-color-primary-700: var(--color-nord-700);
+  --ui-color-primary-800: var(--color-nord-800);
+  --ui-color-primary-900: var(--color-nord-900);
+  --ui-color-primary-950: var(--color-nord-950);
+
+  --ui-color-neutral-50: var(--color-nord-polar-50);
+  --ui-color-neutral-100: var(--color-nord-polar-100);
+  --ui-color-neutral-200: var(--color-nord-polar-200);
+  --ui-color-neutral-300: var(--color-nord-polar-300);
+  --ui-color-neutral-400: var(--color-nord-polar-400);
+  --ui-color-neutral-500: var(--color-nord-polar-500);
+  --ui-color-neutral-600: var(--color-nord-polar-600);
+  --ui-color-neutral-700: var(--color-nord-polar-700);
+  --ui-color-neutral-800: var(--color-nord-polar-800);
+  --ui-color-neutral-900: var(--color-nord-polar-900);
+  --ui-color-neutral-950: var(--color-nord-polar-950);
+
+  /* Success colors (Nord Green) */
+  --ui-color-success-50: var(--color-nord-green-50);
+  --ui-color-success-100: var(--color-nord-green-100);
+  --ui-color-success-200: var(--color-nord-green-200);
+  --ui-color-success-300: var(--color-nord-green-300);
+  --ui-color-success-400: var(--color-nord-green-400);
+  --ui-color-success-500: var(--color-nord-green-500);
+  --ui-color-success-600: var(--color-nord-green-600);
+  --ui-color-success-700: var(--color-nord-green-700);
+  --ui-color-success-800: var(--color-nord-green-800);
+  --ui-color-success-900: var(--color-nord-green-900);
+  --ui-color-success-950: var(--color-nord-green-950);
+
+  /* Warning colors (Nord Yellow) */
+  --ui-color-warning-50: var(--color-nord-yellow-50);
+  --ui-color-warning-100: var(--color-nord-yellow-100);
+  --ui-color-warning-200: var(--color-nord-yellow-200);
+  --ui-color-warning-300: var(--color-nord-yellow-300);
+  --ui-color-warning-400: var(--color-nord-yellow-400);
+  --ui-color-warning-500: var(--color-nord-yellow-500);
+  --ui-color-warning-600: var(--color-nord-yellow-600);
+  --ui-color-warning-700: var(--color-nord-yellow-700);
+  --ui-color-warning-800: var(--color-nord-yellow-800);
+  --ui-color-warning-900: var(--color-nord-yellow-900);
+  --ui-color-warning-950: var(--color-nord-yellow-950);
+
+  /* Error colors (Nord Red) */
+  --ui-color-error-50: var(--color-nord-red-50);
+  --ui-color-error-100: var(--color-nord-red-100);
+  --ui-color-error-200: var(--color-nord-red-200);
+  --ui-color-error-300: var(--color-nord-red-300);
+  --ui-color-error-400: var(--color-nord-red-400);
+  --ui-color-error-500: var(--color-nord-red-500);
+  --ui-color-error-600: var(--color-nord-red-600);
+  --ui-color-error-700: var(--color-nord-red-700);
+  --ui-color-error-800: var(--color-nord-red-800);
+  --ui-color-error-900: var(--color-nord-red-900);
+  --ui-color-error-950: var(--color-nord-red-950);
+
+  /* Info colors (Nord Orange) */
+  --ui-color-info-50: var(--color-nord-orange-50);
+  --ui-color-info-100: var(--color-nord-orange-100);
+  --ui-color-info-200: var(--color-nord-orange-200);
+  --ui-color-info-300: var(--color-nord-orange-300);
+  --ui-color-info-400: var(--color-nord-orange-400);
+  --ui-color-info-500: var(--color-nord-orange-500);
+  --ui-color-info-600: var(--color-nord-orange-600);
+  --ui-color-info-700: var(--color-nord-orange-700);
+  --ui-color-info-800: var(--color-nord-orange-800);
+  --ui-color-info-900: var(--color-nord-orange-900);
+  --ui-color-info-950: var(--color-nord-orange-950);
+
+  /* Set primary color default shade */
+  --ui-primary: var(--ui-color-primary-500);
+
+  /* Nord-themed design tokens using official colors */
+  --ui-bg: var(--nord0);           /* #2E3440 - Polar Night darkest */
+  --ui-bg-muted: var(--nord1);     /* #3B4252 - Polar Night dark */
+  --ui-bg-elevated: var(--nord2);  /* #434C5E - Polar Night medium */
+  --ui-bg-accented: var(--nord3);  /* #4C566A - Polar Night light */
+  --ui-bg-inverted: var(--nord6);  /* #ECEFF4 - Snow Storm lightest */
+
+  --ui-text: var(--nord5);           /* #E5E9F0 - Snow Storm medium */
+  --ui-text-dimmed: var(--nord4);    /* #D8DEE9 - Snow Storm dark */
+  --ui-text-muted: var(--nord4);     /* #D8DEE9 - Snow Storm dark */
+  --ui-text-toned: var(--nord4);     /* #D8DEE9 - Snow Storm dark */
+  --ui-text-highlighted: var(--nord6); /* #ECEFF4 - Snow Storm lightest */
+  --ui-text-inverted: var(--nord0);  /* #2E3440 - Polar Night darkest */
+
+  --ui-border: var(--nord3);        /* #4C566A - Polar Night light */
+  --ui-border-muted: var(--nord2);  /* #434C5E - Polar Night medium */
+  --ui-border-accented: var(--nord3); /* #4C566A - Polar Night light */
+  --ui-border-inverted: var(--nord6); /* #ECEFF4 - Snow Storm lightest */
+}
+
+.dark {
+  /* Enhanced primary color for dark mode using official Nord frost colors */
+  --ui-primary: var(--nord8); /* #88C0D0 - Frost bright cyan */
+  
+  /* Keep Nord dark theme consistent with official colors */
+  --ui-bg: var(--nord0);           /* #2E3440 */
+  --ui-bg-muted: var(--nord1);     /* #3B4252 */
+  --ui-bg-elevated: var(--nord2);  /* #434C5E */
+  --ui-text: var(--nord5);         /* #E5E9F0 */
+  --ui-text-highlighted: var(--nord6); /* #ECEFF4 */
+  --ui-border: var(--nord3);       /* #4C566A */
 }

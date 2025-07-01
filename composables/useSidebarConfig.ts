@@ -7,6 +7,11 @@ export default () => ref<NavigationMenuItem[][]>([
       icon: 'ic:baseline-dashboard',
       to: '/caretaker/dashboard',
     },
+    {
+      label: 'Patients',
+      icon: 'ic:baseline-people',
+      to: '/caretaker/patients',
+    }
   ],
   [
     {

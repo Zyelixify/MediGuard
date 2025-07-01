@@ -4,7 +4,7 @@ defineProps<{ collapsed?: boolean }>()
 
 <template>
   <h2
-    class="block text-4xl align-baseline text-center text-slate-300 select-none"
+    class="block text-4xl align-baseline text-center select-none text-primary"
     :style="{
       height: '100%',
       transition: '0.3s',

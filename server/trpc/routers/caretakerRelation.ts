@@ -16,6 +16,13 @@ export const router = createRouter({
     ctx.prisma.caretakerRelation.findUniqueOrThrow({ where: input, include: defaultInclude })
   ),
   create: shieldedProcedure.input(createCaretakerRelationSchema).mutation(async ({ input, ctx }) => {
+    const patient = await ctx.prisma.account.findUnique({ where: { id: input.patientId, role: 'account' } })
+    const caretaker = await ctx.prisma.account.findUnique({ where: { id: input.caretakerId, role: 'caretaker' } })
+
+    if (!patient || !caretaker) {
+      throw new Error('Invalid patient or caretaker ID')
+    }
+
     const relation = await ctx.prisma.caretakerRelation.create({ data: input, select: { id: true, patientId: true, caretaker: { select: { id: true, name: true } } } })
 
     await ctx.prisma.event.create({
@@ -29,9 +36,7 @@ export const router = createRouter({
     })
 
     return relation
-  }
-
-  ),
+  }),
   confirm: shieldedProcedure.input(z.object({ id: z.string() }).passthrough()).mutation(async ({ input, ctx }) => {
     return ctx.prisma.caretakerRelation.update({
       where: { id: input.id, patientId: ctx.session?.user.id },

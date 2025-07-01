@@ -40,8 +40,6 @@ pnpm build
 ```
 
 ## Starting the project on GitHub Codespaces
-First, wait for the set-up commands to finish for `postCreateCommand` and `postStartCommand`. Once they do, you can start the project by running the following command in a Terminal:
+The development environment is preconfigured to run on GitHub Codespaces. You can start the project by clicking the "Code" button and selecting "Open with Codespaces".
 
-```bash
-pnpm dev
-```
+Afterwards, just wait while the devcontainer is built and the dependencies are installed. Once this is done, the dev server will automatically start and you can access the application through the link provided in the terminal.

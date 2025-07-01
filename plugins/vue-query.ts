@@ -19,6 +19,7 @@ export default defineNuxtPlugin((nuxt) => {
             description: error instanceof Error ? error.message : String(error),
             duration: 5000,
             color: 'error',
+            icon: 'i-heroicons-x-circle',
           })
         }
       },
