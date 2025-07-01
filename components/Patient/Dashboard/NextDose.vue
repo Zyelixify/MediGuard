@@ -49,11 +49,11 @@ async function markAsTaken() {
     <template #headerExtra>
       <div class="flex items-center gap-2">
         <UButton
-          class="ml-auto"
           size="sm"
           variant="outline"
-          color="primary"
-          icon="ic:refresh"
+          color="neutral"
+          icon="ic:round-refresh"
+          :loading="isLoading"
           @click="refetch()"
         />
         <UButton
