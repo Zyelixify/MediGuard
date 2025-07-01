@@ -4,17 +4,11 @@ import CryptoJS from 'crypto-js'
  * Simple crypto utility using crypto-js for date-based encryption/decryption
  */
 export function useCrypto() {
-  /**
-   * Get the current date as a string in YYYY-MM-DD format
-   */
   function getCurrentDateKey(): string {
     const now = new Date()
     return now.toISOString().split('T')[0] // Returns YYYY-MM-DD
   }
 
-  /**
-   * Create a hash-based encryption key from the date
-   */
   function createDateKey(date?: string): string {
     const dateKey = date || getCurrentDateKey()
     // Create a consistent 32-character key from the date
@@ -26,42 +20,55 @@ export function useCrypto() {
    */
   function encryptId(id: string, date?: string): string {
     const dateKey = createDateKey(date)
-    const encrypted = CryptoJS.AES.encrypt(id, dateKey).toString()
+    // Add ID: prefix to verify proper decryption
+    const prefixedId = `ID:${id}`
+    const encrypted = CryptoJS.AES.encrypt(prefixedId, dateKey).toString()
 
-    // Make URL-safe by replacing problematic characters
+    // Make URL-safe
     return encrypted
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
       .replace(/=/g, '')
   }
 
   /**
-   * Decrypt an ID with the current date (or specified date)
+   * Decrypt an ID with the current (or specified) date
    */
   function decryptId(encryptedId: string, date?: string): string {
     try {
       const dateKey = createDateKey(date)
 
-      // Add padding if necessary
-      const padding = '='.repeat((4 - (encryptedId.length % 4)) % 4)
-      encryptedId += padding
+      let base64 = encryptedId
+        .replace(/-/g, '+')
+        .replace(/_/g, '/')
 
-      const decryptedBytes = CryptoJS.AES.decrypt(encryptedId, dateKey)
+      // Add padding if necessary
+      const padding = '='.repeat((4 - (base64.length % 4)) % 4)
+      base64 += padding
+
+      const decryptedBytes = CryptoJS.AES.decrypt(base64, dateKey)
       const decrypted = decryptedBytes.toString(CryptoJS.enc.Utf8)
 
       if (!decrypted) {
-        throw new Error('Decryption failed')
+        throw new Error('Decryption failed: Empty result')
       }
 
-      return decrypted
+      if (!decrypted.startsWith('ID:')) {
+        throw new Error('Decryption failed: Invalid prefix or corrupted data')
+      }
+
+      return decrypted.substring(3)
     }
-    catch {
-      throw new Error('Failed to decrypt ID: Invalid format or wrong date')
+    catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      throw new Error(`Failed to decrypt ID: ${message}`)
     }
   }
 
   /**
    * Try to decrypt with multiple date attempts (current date and previous days)
    */
-  function decryptIdWithFallback(encryptedId: string, maxDaysBack: number = 7): string {
+  function decryptIdWithFallback(encryptedId: string, maxDaysBack: number = 1): string {
     const now = new Date()
 
     // Try current date first
@@ -78,18 +85,12 @@ export function useCrypto() {
           return decryptId(encryptedId, dateKey)
         }
         catch {
-          continue // Ignore errors, try next date
+          continue
         }
       }
-      throw new Error('Failed to decrypt ID: No valid date found within range')
     }
-  }
 
-  /**
-   * Generate a simple hash for testing purposes
-   */
-  function simpleHash(input: string): string {
-    return CryptoJS.SHA256(input).toString()
+    throw new Error(`Failed to decrypt ID`)
   }
 
   return {
@@ -98,6 +99,5 @@ export function useCrypto() {
     encryptId,
     decryptId,
     decryptIdWithFallback,
-    simpleHash,
   }
 }

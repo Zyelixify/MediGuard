@@ -8,6 +8,6 @@ const defaultEventInclude = {
 
 export const router = createRouter({
   findManyEvent: shieldedProcedure.input(z.object({}).passthrough()).query(({ input, ctx }) => {
-    return ctx.prisma.event.findMany({ ...input, include: defaultEventInclude, orderBy: { createdAt: 'desc' } })
+    return ctx.prisma.event.findMany({ ...input, include: defaultEventInclude, orderBy: { timestamp: 'desc' } })
   }),
 })

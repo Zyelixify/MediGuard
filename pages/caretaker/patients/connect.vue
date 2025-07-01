@@ -27,10 +27,7 @@ const hasError = ref(false)
 const decryptionError = ref<string | null>(null)
 
 // Parse the route query and handle decryption
-const parseResult = computed(() => {
-  const routeQuery = useRoute().query
-  return connectSchema.safeParse(routeQuery)
-})
+const parseResult = computed(() => connectSchema.safeParse(useRoute().query))
 
 const idToConnect = computed(() => {
   const result = parseResult.value
@@ -53,8 +50,7 @@ watch(parseResult, (result) => {
 const createRelation = useMutation({
   mutationFn: $trpc.caretakerRelation.create.mutate,
   mutationKey: ['caretakerRelation', 'create'],
-  onError: (error) => {
-    useToastMessage('error', error.message)
+  onError: () => {
     hasError.value = true
   },
   onSuccess: () => {
@@ -70,7 +66,7 @@ const createRelation = useMutation({
 
 // Retry connection function
 function retryConnection() {
-  if (!idToConnect.value) {
+  if (!idToConnect.value || createRelation.isPending.value) {
     return
   }
 
@@ -79,9 +75,9 @@ function retryConnection() {
   createRelation.mutateAsync({ patientId: idToConnect.value, caretakerId: session.value?.user.id ?? '' })
 }
 
-// Initial connection attempt - only if we have a valid ID
+// Initial connection attempt - only if we have a valid ID and haven't attempted yet
 watch(idToConnect, (id) => {
-  if (id && !hasError.value) {
+  if (id && !hasError.value && !createRelation.isPending.value) {
     createRelation.mutateAsync({ patientId: id, caretakerId: session.value?.user.id ?? '' })
   }
 }, { immediate: true })
@@ -97,7 +93,6 @@ watch(idToConnect, (id) => {
       </template>
 
       <div class="flex flex-col items-center justify-center min-h-[200px] space-y-6">
-        <!-- Loading State -->
         <div v-if="createRelation.isPending.value" class="text-center space-y-4">
           <div class="flex justify-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500" />
@@ -144,13 +139,13 @@ watch(idToConnect, (id) => {
         <!-- Success State (brief display before navigation) -->
         <div v-else-if="createRelation.isSuccess.value" class="text-center space-y-4">
           <div class="flex justify-center">
-            <UIcon name="i-heroicons-check-circle" class="w-12 h-12 text-success-500" />
+            <UIcon name="i-heroicons-check-circle" class="w-12 h-12 text-success-400" />
           </div>
           <div class="space-y-2">
-            <h4 class="text-lg font-medium text-success-700">
+            <h4 class="text-lg font-medium text-success-400">
               Connected Successfully!
             </h4>
-            <p class="text-sm text-success-600">
+            <p class="text-sm text-success-400">
               Redirecting to patients list...
             </p>
           </div>

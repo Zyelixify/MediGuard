@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import QRCode from 'qrcode'
+
 definePageMeta({ layout: 'simple' })
 
 const { data: session } = useAuth()
@@ -10,16 +12,16 @@ const { data: session } = useAuth()
       <UButton
         to="/logout"
         class="ml-auto"
-        size="sm"
-        variant="solid"
-        color="neutral"
+        size="lg"
+        variant="ghost"
+        color="primary"
         icon="ic:round-logout"
       >
         Logout
       </UButton>
     </template>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-default">
+    <div class="w-full flex flex-col gap-2 text-default">
       <Card>
         <template #header>
           <h2 class="text-xl font-semibold">
@@ -32,6 +34,12 @@ const { data: session } = useAuth()
           and efficient solutions.
         </p>
       </Card>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-default">
+      <PatientDashboardNextDose />
+
+      <PatientDashboardCaretakers />
     </div>
   </Page>
 </template>

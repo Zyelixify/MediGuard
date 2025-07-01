@@ -1,7 +1,7 @@
 import type { z } from 'zod'
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
-import type { AppRouter } from './server/trpc/routers'
-import type { accountRoleSchema } from './schemas'
+import type { AppRouter } from '../server/trpc/routers'
+import type { accountRoleSchema } from '../schemas'
 
 export type RouterOutput = inferRouterOutputs<AppRouter>
 export type RouterInput = inferRouterInputs<AppRouter>
