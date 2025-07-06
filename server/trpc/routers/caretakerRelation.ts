@@ -61,7 +61,7 @@ export const router = createRouter({
     await ctx.prisma.event.create({
       data: {
         type: 'CaretakerRelationConfirmed',
-        message: `${relation.caretaker.name} has requested to be your caretaker.`,
+        message: `You have confirmed ${relation.caretaker.name} to be your caretaker.`,
         key: `CaretakerRelationConfirmed:${relation.id},${relation.caretaker.id},${relation.patientId},${new Date().toISOString()}`,
         accountId: relation.patientId,
         caretakerRelationId: relation.id,
