@@ -86,7 +86,7 @@ const formattedDate = computed(() => {
     <template #header>
       <div class="flex items-center gap-2 sm:gap-3">
         <UIcon name="ic:round-medication" class="text-primary text-lg sm:text-xl flex-shrink-0" />
-        <h3 class="text-base sm:text-lg font-semibold text-default">
+        <h3 class="text-base sm:text-xl font-semibold text-default">
           Next Dose
         </h3>
       </div>
@@ -102,20 +102,6 @@ const formattedDate = computed(() => {
             icon="ic:round-refresh"
             :loading="isRefreshing"
             :disabled="isRefreshing || isLoading"
-            class="hidden sm:flex"
-            @click="refetch()"
-          />
-        </UTooltip>
-        <!-- Mobile: Show only icon -->
-        <UTooltip text="Refresh next dose">
-          <UButton
-            size="sm"
-            variant="ghost"
-            color="neutral"
-            icon="ic:round-refresh"
-            :loading="isRefreshing"
-            :disabled="isRefreshing || isLoading"
-            class="flex sm:hidden"
             @click="refetch()"
           />
         </UTooltip>
@@ -136,7 +122,7 @@ const formattedDate = computed(() => {
 
     <div class="space-y-4">
       <div v-if="isLoading" class="flex items-center justify-center py-8">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500" />
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500" />
       </div>
 
       <div v-else-if="error" class="text-center py-8 space-y-4">
@@ -231,7 +217,7 @@ const formattedDate = computed(() => {
                     <div class="text-xs font-medium text-muted">
                       Frequency
                     </div>
-                    <div class="text-sm font-bold text-default">
+                    <div class="text-sm font-bold text-primary">
                       {{ nextDose.medication.frequency }}
                     </div>
                   </div>

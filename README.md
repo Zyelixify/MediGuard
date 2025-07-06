@@ -9,6 +9,7 @@ Project was bootstrapped using [sidebase](https://sidebase.io).
   - Nuxt 3/Vue 3
   - Tailwind CSS
   - [NuxtUI](https://ui.nuxt.com/)
+  - [NordTheme](https://nordtheme.com/) for color scheme inspiration
 - Backend:
   - Data fetching: tRPC + Tanstack vue-query
   - Database: SQLite (development) / PostgreSQL (production)

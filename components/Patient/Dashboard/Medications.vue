@@ -41,7 +41,7 @@ function openMedicationCreationModal() {
     <template #header>
       <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
         <UIcon name="ic:round-medication" class="text-primary text-lg sm:text-xl flex-shrink-0" />
-        <h2 class="text-base sm:text-xl font-semibold">
+        <h2 class="text-base sm:text-xl font-semibold text-default">
           My Medications
         </h2>
         <UBadge v-if="medications.length > 0" variant="soft" color="primary" size="sm" class="sm:size-md">
@@ -60,20 +60,6 @@ function openMedicationCreationModal() {
             icon="ic:round-refresh"
             :loading="isRefreshing || isFetching"
             :disabled="isRefreshing || medicationsLoading || isFetching"
-            class="hidden sm:flex"
-            @click="handleRefresh"
-          />
-        </UTooltip>
-        <!-- Mobile: Show only icon -->
-        <UTooltip text="Refresh medications">
-          <UButton
-            size="sm"
-            variant="ghost"
-            color="neutral"
-            icon="ic:round-refresh"
-            :loading="isRefreshing || isFetching"
-            :disabled="isRefreshing || medicationsLoading || isFetching"
-            class="flex sm:hidden"
             @click="handleRefresh"
           />
         </UTooltip>

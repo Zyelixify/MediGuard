@@ -113,7 +113,7 @@ function handleDeleteCaretaker(caretaker: any) {
     <template #header>
       <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
         <UIcon name="ic:round-people" class="text-primary text-lg sm:text-xl flex-shrink-0" />
-        <h2 class="text-base sm:text-xl font-semibold">
+        <h2 class="text-base sm:text-xl font-semibold text-default">
           My Caretakers
         </h2>
         <UBadge v-if="caretakers.length > 0" variant="soft" color="primary" size="sm" class="sm:size-md">
@@ -132,20 +132,6 @@ function handleDeleteCaretaker(caretaker: any) {
             icon="ic:round-refresh"
             :loading="isRefreshing"
             :disabled="isRefreshing || isLoading"
-            class="hidden sm:flex"
-            @click="refetch()"
-          />
-        </UTooltip>
-        <!-- Mobile: Show only icon -->
-        <UTooltip text="Refresh caretaker list">
-          <UButton
-            size="sm"
-            variant="ghost"
-            color="neutral"
-            icon="ic:round-refresh"
-            :loading="isRefreshing"
-            :disabled="isRefreshing || isLoading"
-            class="flex sm:hidden"
             @click="refetch()"
           />
         </UTooltip>
@@ -182,7 +168,7 @@ function handleDeleteCaretaker(caretaker: any) {
                     >
                   </div>
                   <div v-else class="p-8 bg-nord-polar-100 rounded-lg shadow-sm border">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto" />
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mx-auto" />
                     <p class="text-sm text-muted mt-2">
                       Generating QR code...
                     </p>
@@ -228,8 +214,8 @@ function handleDeleteCaretaker(caretaker: any) {
       </div>
     </template>
 
-    <div v-if="isLoading" class="flex items-center justify-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mr-4" />
+    <div v-if="isLoading" class="flex items-center justify-center py-8">
+      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500" />
     </div>
 
     <div v-else-if="caretakers.length === 0" class="text-center py-8 space-y-3">

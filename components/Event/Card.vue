@@ -4,15 +4,13 @@ const { data: session } = useAuth()
 const { event } = useQuery()
 const { data: eventsData, isLoading, isFetching, refetch } = event.all({
   where: { accountId: session.value?.user.id },
-  take: 50, // Get more events to show in modal
   orderBy: { timestamp: 'desc' }
 })
 const allEvents = computed(() => eventsData.value || [])
-const recentEvents = computed(() => allEvents.value.slice(0, 3)) // Show first 3 in card
+const recentEvents = computed(() => allEvents.value.slice(0, 3))
 
 const isRefreshing = computed(() => isFetching.value && !isLoading.value)
 
-// Expose functions and data that the dashboard might need
 defineExpose({
   unreadCount: computed(() => recentEvents.value.length || 0)
 })
@@ -23,10 +21,10 @@ defineExpose({
     <template #header>
       <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
         <UIcon name="ic:round-history" class="text-primary text-lg sm:text-xl flex-shrink-0" />
-        <h2 class="text-base sm:text-xl font-semibold">
+        <h2 class="text-base sm:text-xl font-semibold text-default">
           Recent Activity
         </h2>
-        <UBadge v-if="recentEvents.length > 0" variant="soft" color="primary" size="xs" class="sm:size-sm">
+        <UBadge v-if="recentEvents.length > 0" variant="soft" color="primary" size="sm" class="sm:size-md">
           {{ recentEvents.length }}
         </UBadge>
       </div>
@@ -42,20 +40,6 @@ defineExpose({
             icon="ic:round-refresh"
             :loading="isRefreshing"
             :disabled="isRefreshing || isLoading"
-            class="hidden sm:flex"
-            @click="refetch()"
-          />
-        </UTooltip>
-        <!-- Mobile: Show only icon -->
-        <UTooltip text="Refresh activity">
-          <UButton
-            size="sm"
-            variant="ghost"
-            color="neutral"
-            icon="ic:round-refresh"
-            :loading="isRefreshing"
-            :disabled="isRefreshing || isLoading"
-            class="flex sm:hidden"
             @click="refetch()"
           />
         </UTooltip>
@@ -93,7 +77,7 @@ defineExpose({
               </div>
 
               <div v-else class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
-                <PatientDashboardEventItem
+                <EventItem
                   v-for="historyEvent in allEvents"
                   :key="historyEvent.id"
                   :event="historyEvent"
@@ -132,7 +116,7 @@ defineExpose({
 
     <!-- Recent Events List -->
     <div v-else class="space-y-6">
-      <PatientDashboardEventItem
+      <EventItem
         v-for="eventItem in recentEvents"
         :key="eventItem.id"
         :event="eventItem"
