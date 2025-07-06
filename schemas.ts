@@ -14,18 +14,36 @@ export const createAccountSchema = z.object({
 })
 export const updateAccountSchema = z.any(z.object({}))
 
+export const frequencySchema = z.enum(['Once a day', 'Twice a day', 'Three times a day', 'Four times a day', 'Once a week', 'Twice a week', 'Three times a week', 'Four times a week', 'Once a month'])
+
 // Medication
-export const createMedicationSchema = z.object({
-  name: z.string().min(1),
+const baseMedicationSchema = z.object({
+  name: z.string(),
   description: z.string().optional(),
   dosage: z.string(),
-  frequency: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
-
+  frequency: frequencySchema,
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
   accountId: z.string(),
 })
-export const updateMedicationSchema = createMedicationSchema.merge(idObjectSchema)
+
+export const createMedicationSchema = baseMedicationSchema.refine((data) => {
+  const startDate = new Date(data.startDate)
+  const endDate = new Date(data.endDate)
+  return endDate >= startDate
+}, {
+  message: 'End date must be after or equal to start date',
+  path: ['endDate'],
+})
+
+export const updateMedicationSchema = baseMedicationSchema.merge(idObjectSchema).refine((data) => {
+  const startDate = new Date(data.startDate)
+  const endDate = new Date(data.endDate)
+  return endDate >= startDate
+}, {
+  message: 'End date must be after or equal to start date',
+  path: ['endDate'],
+})
 
 // Scheduled Medication
 export const updateScheduledMedicationTakenSchema = idObjectSchema.merge(z.object({ taken: z.boolean() }))

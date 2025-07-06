@@ -22,6 +22,7 @@
     "@trpc/server": "^10.45.2",
     "bcryptjs": "^3.0.2",
     "crypto-js": "^4.2.0",
+    "date-fns": "^4.1.0",
     "nord": "^0.2.1",
     "nuxt": "^3.11.2",
     "nuxt-icon": "^0.6.10",

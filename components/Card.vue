@@ -1,6 +1,6 @@
 <template>
   <UCard class="bg-muted border-default">
-    <template #header>
+    <template v-if="$slots.header || $slots.headerExtra" #header>
       <div class="flex items-center justify-between">
         <slot name="header" />
 
