@@ -57,27 +57,6 @@ const expanded = ref<Record<string, boolean>>({})
 
 const columns: TableColumn<CaretakerRelationGetMany>[] = [
   {
-    id: 'expand',
-    header: '',
-    size: 48,
-    cell: ({ row }) =>
-      h(UButton, {
-        'color': 'neutral',
-        'variant': 'ghost',
-        'icon': 'ic:round-chevron-right',
-        'square': true,
-        'size': 'sm',
-        'aria-label': 'Expand',
-        'ui': {
-          leadingIcon: [
-            'transition-transform duration-200',
-            row.getIsExpanded() ? 'rotate-90' : ''
-          ]
-        },
-        'onClick': () => row.toggleExpanded()
-      })
-  },
-  {
     accessorKey: 'name',
     header: 'Name',
     cell: ({ row }) => row.original.patient.name,
@@ -95,18 +74,32 @@ const columns: TableColumn<CaretakerRelationGetMany>[] = [
       const text = row.original.isConfirmed ? 'Connected' : 'Pending'
 
       return h(UBadge, { class: 'capitalize select-none', variant: 'soft', color }, () => text)
-    }
+    },
   },
   {
     id: 'actions',
     header: 'Actions',
-    size: 20,
-    maxSize: 20,
     cell: ({ row }) => {
       return h(
         'div',
-        { class: 'flex items-center gap-2' },
+        { class: 'flex items-center gap-1' },
         [
+          h(UButton, {
+            'v-if': row.original.isConfirmed,
+            'color': 'neutral',
+            'variant': 'ghost',
+            'square': true,
+            'size': 'sm',
+            'aria-label': 'Expand',
+            'ui': {
+              leadingIcon: [
+                'transition-transform duration-200',
+                row.getIsExpanded() ? 'rotate-90' : ''
+              ]
+            },
+            'label': row.getIsExpanded() ? 'Hide Medications' : 'View Medications',
+            'onClick': () => row.toggleExpanded()
+          }),
           h(UButton, {
             icon: 'ic:round-medication',
             color: 'primary',
@@ -154,16 +147,23 @@ const columns: TableColumn<CaretakerRelationGetMany>[] = [
       </div>
     </div>
 
-    <div v-else class="p-4">
+    <div v-else class="w-full">
       <UTable
         v-model:expanded="expanded"
         :data="patients"
         :columns="columns"
-        :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }"
+        :ui="{
+          tr: 'data-[expanded=true]:bg-elevated/50',
+          base: 'table-fixed w-full overflow-x-scroll custom-scrollbar',
+        }"
         class="flex-1"
       >
         <template #expanded="{ row }">
-          <PatientMedicationExpansion :patient="row.original.patient" />
+          <div class="bg-elevated/25 border-t border-gray-200 dark:border-gray-700">
+            <div class="overflow-x-auto">
+              <PatientMedicationExpansion :patient="row.original.patient" />
+            </div>
+          </div>
         </template>
       </UTable>
     </div>

@@ -18,7 +18,7 @@ const medications = computed(() => patientMedications.value || [])
 </script>
 
 <template>
-  <div class="p-2 bg-elevated/25 border-t border-gray-200 dark:border-gray-700">
+  <div class="p-4">
     <div v-if="isLoading" class="flex items-center justify-center py-8">
       <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500" />
       <span class="ml-2 text-sm text-muted">Loading medications...</span>
@@ -36,7 +36,7 @@ const medications = computed(() => patientMedications.value || [])
       </p>
     </div>
 
-    <div v-else>
+    <div v-else class="w-full">
       <MedicationCarousel :medications="medications" />
     </div>
   </div>

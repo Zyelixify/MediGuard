@@ -31,7 +31,6 @@ const {
       'mr-1': variant === 'modal',
     }"
   >
-    <!-- Icon Section -->
     <div class="flex-shrink-0 mt-0.5">
       <div
         class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center"
@@ -45,17 +44,13 @@ const {
       </div>
     </div>
 
-    <!-- Content Section -->
     <div class="flex-1 min-w-0">
-      <!-- Mobile: Stack vertically, Desktop: Side by side -->
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-0">
-        <!-- Main Content -->
         <div class="flex-1 min-w-0 space-y-1">
           <p class="text-sm font-medium text-default leading-snug">
             {{ event.message }}
           </p>
 
-          <!-- Time Info -->
           <div class="flex items-center gap-1.5 text-xs text-muted">
             <UIcon name="ic:round-access-time" class="text-xs flex-shrink-0" />
             <div class="flex flex-wrap items-center gap-1">
@@ -71,7 +66,6 @@ const {
           </div>
         </div>
 
-        <!-- Badge - On mobile: below content, on desktop: aligned to top -->
         <div class="flex-shrink-0 self-start mt-0.5 sm:mt-0">
           <UBadge
             :color="getEventColor(event.type)"

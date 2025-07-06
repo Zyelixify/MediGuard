@@ -4,7 +4,16 @@ import { createRouter } from '~/server/trpc/trpc'
 import { updateScheduledMedicationTakenSchema } from '~/schemas'
 
 const defaultInclude = {
-  medication: true,
+  medication: {
+    include: {
+      account: {
+        select: {
+          name: true,
+          email: true
+        }
+      }
+    }
+  }
 }
 
 const createScheduledMedicationSchema = z.object({

@@ -97,13 +97,26 @@ const deleteRelation = useMutation({
   },
 })
 
+const confirmRelation = useMutation({
+  mutationFn: $trpc.caretakerRelation.confirm.mutate,
+  mutationKey: ['caretakerRelation', 'confirm'],
+  onSuccess: () => {
+    useToastMessage('success', 'Caretaker confirmed successfully')
+    queryClient.invalidateQueries({ queryKey: ['caretakerRelation', 'all'] })
+  },
+  onError: (error) => {
+    console.error('Failed to confirm caretaker:', error)
+    useToastMessage('error', 'Failed to confirm caretaker')
+  },
+})
+
 // Handle caretaker deletion with confirmation
-function handleDeleteCaretaker(caretaker: any) {
+async function handleDeleteCaretaker(caretaker: any) {
   // eslint-disable-next-line no-alert
   const confirmed = window.confirm(`Are you sure you want to remove ${caretaker.caretaker.name} as your caretaker? This action cannot be undone.`)
 
   if (confirmed) {
-    deleteRelation.mutate({ id: caretaker.id })
+    deleteRelation.mutateAsync({ id: caretaker.id })
   }
 }
 </script>
@@ -236,34 +249,50 @@ function handleDeleteCaretaker(caretaker: any) {
           <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
             <UIcon name="ic:round-person" class="text-primary text-lg" />
           </div>
-          <div>
-            <h3 class="text-sm font-semibold text-default">
-              {{ caretaker.caretaker.name }}
-            </h3>
-            <p class="text-xs text-muted">
-              {{ caretaker.caretaker.email }}
-            </p>
-            <div class="flex items-center gap-1 mt-1">
+          <div class="flex-1 gap-2">
+            <div class="flex items-center gap-2">
+              <h3 class="text-md font-semibold text-default">
+                {{ caretaker.caretaker.name }}
+              </h3>
               <UBadge
                 :color="caretaker.isConfirmed ? 'success' : 'warning'"
                 variant="soft"
-                size="xs"
+                size="md"
               >
-                {{ caretaker.isConfirmed ? 'Connected' : 'Pending' }}
+                {{ caretaker.isConfirmed ? 'Confirmed' : 'Pending' }}
               </UBadge>
             </div>
+
+            <p class="text-xs text-muted">
+              {{ caretaker.caretaker.email }}
+            </p>
           </div>
         </div>
-        <UTooltip text="Remove caretaker">
-          <UButton
-            variant="ghost"
-            color="error"
-            icon="ic:round-delete"
-            size="sm"
-            :loading="deleteRelation.isPending.value"
-            @click="handleDeleteCaretaker(caretaker)"
-          />
-        </UTooltip>
+        <div class="flex items-center gap-1">
+          <UTooltip v-if="!caretaker.isConfirmed" text="Cofirm Caretaker">
+            <UButton
+              variant="ghost"
+              color="success"
+              icon="ic:round-check-circle"
+              size="sm"
+              label="Confirm caretaker"
+              :loading="confirmRelation.isPending.value"
+              @click="confirmRelation.mutateAsync({ id: caretaker.id })"
+            />
+          </UTooltip>
+
+          <UTooltip text="Remove Caretaker">
+            <UButton
+              variant="ghost"
+              color="error"
+              icon="ic:round-delete"
+              size="sm"
+              label="Remove caretaker"
+              :loading="deleteRelation.isPending.value"
+              @click="() => handleDeleteCaretaker(caretaker)"
+            />
+          </UTooltip>
+        </div>
       </div>
     </div>
   </Card>

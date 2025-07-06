@@ -77,7 +77,7 @@ defineExpose({
               </div>
 
               <div v-else class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
-                <EventItem
+                <DashboardEventItem
                   v-for="historyEvent in allEvents"
                   :key="historyEvent.id"
                   :event="historyEvent"
@@ -114,9 +114,8 @@ defineExpose({
       </div>
     </div>
 
-    <!-- Recent Events List -->
     <div v-else class="space-y-6">
-      <EventItem
+      <DashboardEventItem
         v-for="eventItem in recentEvents"
         :key="eventItem.id"
         :event="eventItem"
