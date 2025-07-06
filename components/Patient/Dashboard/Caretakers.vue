@@ -76,8 +76,11 @@ function downloadQRCode() {
 }
 
 const { caretakerRelation } = useQuery()
-const { data: caretakersData, isLoading, refetch } = caretakerRelation.all({ where: { patientId: session.value?.user.id } })
+const { data: caretakersData, isLoading, refetch, isFetching } = caretakerRelation.all({ where: { patientId: session.value?.user.id } })
 const caretakers = computed(() => caretakersData.value || [])
+
+// Track refresh loading state separately from initial loading
+const isRefreshing = computed(() => isFetching.value && !isLoading.value)
 
 const { $trpc } = useNuxtApp()
 const queryClient = useQueryClient()
@@ -108,26 +111,41 @@ function handleDeleteCaretaker(caretaker: any) {
 <template>
   <Card>
     <template #header>
-      <div class="flex items-center gap-2">
-        <UIcon name="ic:round-people" class="text-primary text-xl" />
-        <h2 class="text-xl font-semibold">
-          Your Caretakers
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+        <UIcon name="ic:round-people" class="text-primary text-lg sm:text-xl flex-shrink-0" />
+        <h2 class="text-base sm:text-xl font-semibold">
+          My Caretakers
         </h2>
-        <UBadge v-if="caretakers.length > 0" variant="soft" color="primary" size="xs">
+        <UBadge v-if="caretakers.length > 0" variant="soft" color="primary" size="sm" class="sm:size-md">
           {{ caretakers.length }}
         </UBadge>
       </div>
     </template>
 
     <template #headerExtra>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1 sm:gap-2">
         <UTooltip text="Refresh caretaker list">
           <UButton
             size="sm"
             variant="outline"
             color="neutral"
             icon="ic:round-refresh"
-            :loading="isLoading"
+            :loading="isRefreshing"
+            :disabled="isRefreshing || isLoading"
+            class="hidden sm:flex"
+            @click="refetch()"
+          />
+        </UTooltip>
+        <!-- Mobile: Show only icon -->
+        <UTooltip text="Refresh caretaker list">
+          <UButton
+            size="sm"
+            variant="ghost"
+            color="neutral"
+            icon="ic:round-refresh"
+            :loading="isRefreshing"
+            :disabled="isRefreshing || isLoading"
+            class="flex sm:hidden"
             @click="refetch()"
           />
         </UTooltip>
@@ -135,7 +153,7 @@ function handleDeleteCaretaker(caretaker: any) {
           <UButton
             class="ml-auto"
             size="sm"
-            variant="solid"
+            variant="outline"
             color="primary"
             icon="ic:round-add"
           >

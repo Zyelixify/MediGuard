@@ -19,5 +19,7 @@ export type ScheduledMedicationGetMany = RouterOutput['scheduledMedication']['fi
 export type CaretakerRelationGetMany = RouterOutput['caretakerRelation']['findManyCaretakerRelations'][number]
 export type CaretakerRelationGetOne = RouterOutput['caretakerRelation']['findOneCaretakerRelations']
 
+export type EventGetMany = RouterOutput['event']['findManyEvent'][number]
+
 export type MedicationCreationFormData = z.infer<typeof createMedicationSchema>
 export type FrequencyType = z.infer<typeof frequencySchema>

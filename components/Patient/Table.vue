@@ -52,7 +52,31 @@ function openMedicationCreationModal(patient: CaretakerRelationGetMany['patient'
   medicationCreationModal.open({ patientId: patientId.value, patientName: patientName.value })
 }
 
+// Controlled expansion state
+const expanded = ref<Record<string, boolean>>({})
+
 const columns: TableColumn<CaretakerRelationGetMany>[] = [
+  {
+    id: 'expand',
+    header: '',
+    size: 48,
+    cell: ({ row }) =>
+      h(UButton, {
+        'color': 'neutral',
+        'variant': 'ghost',
+        'icon': 'ic:round-chevron-right',
+        'square': true,
+        'size': 'sm',
+        'aria-label': 'Expand',
+        'ui': {
+          leadingIcon: [
+            'transition-transform duration-200',
+            row.getIsExpanded() ? 'rotate-90' : ''
+          ]
+        },
+        'onClick': () => row.toggleExpanded()
+      })
+  },
   {
     accessorKey: 'name',
     header: 'Name',
@@ -131,7 +155,17 @@ const columns: TableColumn<CaretakerRelationGetMany>[] = [
     </div>
 
     <div v-else class="p-4">
-      <UTable :data="patients" :columns="columns" class="flex-1" />
+      <UTable
+        v-model:expanded="expanded"
+        :data="patients"
+        :columns="columns"
+        :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }"
+        class="flex-1"
+      >
+        <template #expanded="{ row }">
+          <PatientMedicationExpansion :patient="row.original.patient" />
+        </template>
+      </UTable>
     </div>
   </Card>
 </template>

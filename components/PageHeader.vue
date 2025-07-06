@@ -3,8 +3,8 @@ defineProps<{ icon: string, title: string }>()
 </script>
 
 <template>
-  <div class="flex items-center justify-between p-4 bg-muted rounded-md border border-default shadow-sm">
-    <div class="flex items-center space-x-3">
+  <div class="flex items-center justify-between gap-2 p-4 bg-muted rounded-md border border-default shadow-sm">
+    <div class="flex items-center space-x-2">
       <UIcon :name="icon" class="text-4xl text-primary" />
       <h1 class="text-3xl font-semibold text-highlighted">
         {{ title }}

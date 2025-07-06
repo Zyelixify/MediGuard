@@ -228,3 +228,64 @@
   --ui-text-highlighted: var(--nord6); /* #ECEFF4 */
   --ui-border: var(--nord3);       /* #4C566A */
 }
+
+.custom-scrollbar {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+
+.dark .custom-scrollbar {
+  scrollbar-color: rgb(75 85 99) transparent;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(203 213 225);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+}
+
+/* Hide scrollbar when not scrollable or when not hovering */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 0px;
+  transition: height 0.2s ease;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar {
+  height: 8px;
+}
+
+/* Show scrollbar only when content overflows */
+.custom-scrollbar {
+  overflow-x: auto;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
