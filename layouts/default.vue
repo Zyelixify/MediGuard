@@ -65,7 +65,7 @@ useHead({ title: appName })
       </div>
       <!-- End of Mobile Layout -->
 
-      <main class="flex-1 focus:outline-none bg-default">
+      <main class="flex-1 focus:outline-none bg-default min-h-screen overflow-y-scroll custom-scrollbar">
         <slot />
       </main>
     </div>

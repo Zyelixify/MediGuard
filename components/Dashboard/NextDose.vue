@@ -1,28 +1,47 @@
 <script setup lang="ts">
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 
 const { $trpc } = useNuxtApp()
 const queryClient = useQueryClient()
 
-// Use the new date formatting utility
-const {
-  formatTimeUntil,
-  formatDateDisplay,
-  formatTime12Hour,
-  isDoseOverdue: isOverdue
-} = useDateFormatting()
+const { useRealTimeCountdown } = useDateFormatting()
 
-// Fetch the next scheduled dose
-const { data: nextDose, isLoading, error, refetch, isFetching } = useQuery({
-  queryKey: ['scheduledMedication', 'nextDose'],
-  queryFn: () => $trpc.scheduledMedication.findNextDose.query(),
-  refetchInterval: 60000, // Refetch every minute to keep time accurate
+const { scheduledMedication } = useQuery()
+const { data: nextDose, isLoading, error, refetch, isFetching } = scheduledMedication.nextDose()
+
+const {
+  isSupported,
+  isEnabled,
+  canRequestPermission,
+  requestPermission,
+  notificationAnimation,
+  lastNotificationEvent
+} = useNotifications()
+
+const isRefreshing = computed(() => isFetching.value && !isLoading.value)
+const scheduledAt = computed(() => nextDose.value?.scheduledAt || null)
+
+const {
+  timeUntil,
+  isOverdue,
+  isDoseTimeNow,
+  formattedTime,
+  formattedDate
+} = useRealTimeCountdown(scheduledAt)
+
+const nextDoseInfo = computed(() => {
+  if (!nextDose.value) {
+    return {}
+  }
+
+  return {
+    isOverdue: isOverdue.value,
+    timeUntil: timeUntil.value,
+    formattedTime: formattedTime.value,
+    formattedDate: formattedDate.value
+  }
 })
 
-// Track refresh loading state separately from initial loading
-const isRefreshing = computed(() => isFetching.value && !isLoading.value)
-
-// Mark dose as taken with mutation
 const markAsTakenMutation = useMutation({
   mutationFn: (id: string) => $trpc.scheduledMedication.updateTaken.mutate({
     id,
@@ -40,45 +59,12 @@ const markAsTakenMutation = useMutation({
   },
 })
 
-// Mark dose as taken
 function markAsTaken() {
   if (!nextDose.value) {
     return
   }
   markAsTakenMutation.mutate(nextDose.value.id)
 }
-
-// Helper to determine if dose is overdue
-const isDoseOverdue = computed(() => {
-  if (!nextDose.value) {
-    return false
-  }
-  return isOverdue(nextDose.value.scheduledAt)
-})
-
-// Helper to get time until dose using date-fns
-const timeUntilDose = computed(() => {
-  if (!nextDose.value) {
-    return ''
-  }
-  return formatTimeUntil(nextDose.value.scheduledAt)
-})
-
-// Helper to format time using date-fns
-const formattedTime = computed(() => {
-  if (!nextDose.value) {
-    return ''
-  }
-  return formatTime12Hour(nextDose.value.scheduledAt)
-})
-
-// Helper to format date using date-fns
-const formattedDate = computed(() => {
-  if (!nextDose.value) {
-    return ''
-  }
-  return formatDateDisplay(nextDose.value.scheduledAt)
-})
 </script>
 
 <template>
@@ -94,6 +80,41 @@ const formattedDate = computed(() => {
 
     <template #headerExtra>
       <div class="flex items-center gap-1 sm:gap-2">
+        <Transition name="notification-pulse">
+          <div
+            v-if="notificationAnimation"
+            class="flex items-center gap-1 px-2 py-1 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 rounded-full text-xs font-medium border border-primary-300 dark:border-primary-700"
+          >
+            <UIcon name="ic:round-notifications-active" class="text-sm animate-pulse" />
+            <span class="hidden sm:inline">Notification sent</span>
+          </div>
+        </Transition>
+
+        <UTooltip
+          v-if="isSupported && canRequestPermission"
+          text="Enable medication notifications"
+        >
+          <UButton
+            size="sm"
+            variant="outline"
+            color="primary"
+            icon="ic:round-notifications"
+            @click="requestPermission()"
+          />
+        </UTooltip>
+
+        <UTooltip
+          v-else-if="isSupported && isEnabled"
+          :text="lastNotificationEvent
+            ? `Notifications enabled. Last sent: ${lastNotificationEvent.type} for ${lastNotificationEvent.medicationName} at ${new Date(lastNotificationEvent.timestamp).toLocaleTimeString()}`
+            : 'Notifications enabled'"
+        >
+          <UBadge color="success" variant="soft" size="lg">
+            <UIcon name="ic:round-notifications-active" class="mr-1" />
+            On
+          </UBadge>
+        </UTooltip>
+
         <UTooltip text="Refresh next dose">
           <UButton
             size="sm"
@@ -108,8 +129,8 @@ const formattedDate = computed(() => {
         <UButton
           v-if="nextDose"
           size="sm"
-          :variant="isDoseOverdue ? 'solid' : 'outline'"
-          :color="isDoseOverdue ? 'error' : 'success'"
+          :variant="nextDoseInfo.isOverdue ? 'solid' : 'outline'"
+          :color="nextDoseInfo.isOverdue ? 'error' : 'success'"
           icon="ic:round-check"
           :loading="markAsTakenMutation.isPending.value"
           class="font-bold hidden sm:flex"
@@ -156,11 +177,14 @@ const formattedDate = computed(() => {
 
       <div v-else class="space-y-4">
         <!-- Main Info Card -->
-        <div class="relative overflow-hidden rounded-xl">
+        <div
+          class="relative overflow-hidden rounded-xl"
+          :class="nextDoseInfo.isOverdue ? 'animate-pulse' : ''"
+        >
           <!-- Background gradient -->
           <div
-            class="absolute inset-0 bg-gradient-to-br opacity-5"
-            :class="isDoseOverdue ? 'from-red-500 to-red-600' : 'from-blue-500 to-primary-600'"
+            class="absolute inset-0 bg-gradient-to-br opacity-5 transition-all duration-500"
+            :class="nextDoseInfo.isOverdue ? 'from-red-500 to-red-600 animate-pulse' : 'from-blue-500 to-primary-600'"
           />
 
           <!-- Content -->
@@ -179,30 +203,38 @@ const formattedDate = computed(() => {
                 </div>
               </div>
               <div
-                class="inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs sm:text-sm font-bold"
-                :class="isDoseOverdue ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'"
+                class="inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs sm:text-sm font-bold transition-all duration-300"
+                :class="[
+                  nextDoseInfo.isOverdue
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    : 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400',
+                  isDoseTimeNow ? 'ring-2 ring-yellow-400 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : '',
+                ]"
               >
                 <UIcon
-                  :name="isDoseOverdue ? 'ic:round-access-time' : 'ic:round-hourglass-empty'"
+                  :name="nextDoseInfo.isOverdue ? 'ic:round-access-time' : isDoseTimeNow ? 'ic:round-schedule' : 'ic:round-hourglass-empty'"
                   class="text-xs sm:text-sm"
+                  :class="isDoseTimeNow ? 'animate-pulse' : ''"
                 />
-                {{ timeUntilDose }}
+                <span :class="isDoseTimeNow ? 'animate-pulse' : ''">
+                  {{ nextDoseInfo.timeUntil }}
+                </span>
               </div>
             </div>
 
             <div class="space-y-2">
               <div class="flex items-center justify-center gap-2 sm:gap-2 py-2">
                 <UIcon
-                  :name="isDoseOverdue ? 'ic:round-warning' : 'ic:round-schedule'"
-                  :class="isDoseOverdue ? 'text-red-500' : 'text-primary'"
+                  :name="nextDoseInfo.isOverdue ? 'ic:round-warning' : 'ic:round-schedule'"
+                  :class="nextDoseInfo.isOverdue ? 'text-red-500' : 'text-primary'"
                   class="text-xl sm:text-2xl flex-shrink-0"
                 />
                 <div class="flex flex-col sm:flex-row items-center sm:items-baseline gap-2 sm:gap-3">
                   <span class="text-2xl sm:text-3xl md:text-4xl font-black text-default">
-                    {{ formattedTime }}
+                    {{ nextDoseInfo.formattedTime }}
                   </span>
                   <span class="text-sm sm:text-base text-muted font-medium">
-                    {{ formattedDate }}
+                    {{ nextDoseInfo.formattedDate }}
                   </span>
                 </div>
               </div>
@@ -233,9 +265,9 @@ const formattedDate = computed(() => {
                     </div>
                     <div
                       class="text-sm font-bold"
-                      :class="isDoseOverdue ? 'text-red-600' : 'text-primary'"
+                      :class="nextDoseInfo.isOverdue ? 'text-red-600' : 'text-primary'"
                     >
-                      {{ isDoseOverdue ? 'Overdue' : 'On Schedule' }}
+                      {{ nextDoseInfo.isOverdue ? 'Overdue' : 'On Schedule' }}
                     </div>
                   </div>
                 </div>
@@ -263,17 +295,54 @@ const formattedDate = computed(() => {
           <UButton
             block
             size="lg"
-            :variant="isDoseOverdue ? 'solid' : 'outline'"
-            :color="isDoseOverdue ? 'error' : 'success'"
+            :variant="nextDoseInfo.isOverdue ? 'solid' : 'outline'"
+            :color="nextDoseInfo.isOverdue ? 'error' : 'success'"
             icon="ic:round-check"
             :loading="markAsTakenMutation.isPending.value"
             class="font-bold text-base py-2 rounded-xl"
             @click="markAsTaken"
           >
-            {{ isDoseOverdue ? 'Mark Overdue Dose as Taken' : 'Mark as Taken' }}
+            {{ nextDoseInfo.isOverdue ? 'Mark Overdue Dose as Taken' : 'Mark as Taken' }}
           </UButton>
         </div>
       </div>
     </div>
   </Card>
 </template>
+
+<style scoped>
+.notification-pulse-enter-active,
+.notification-pulse-leave-active {
+  transition: all 0.3s ease;
+}
+
+.notification-pulse-enter-from {
+  opacity: 0;
+  transform: scale(0.8) translateY(-4px);
+}
+
+.notification-pulse-leave-to {
+  opacity: 0;
+  transform: scale(0.8) translateY(-4px);
+}
+
+.notification-pulse-enter-to,
+.notification-pulse-leave-from {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* Additional pulse animation for the notification */
+@keyframes notification-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+  }
+}
+
+.notification-pulse-enter-active {
+  animation: notification-glow 1.5s ease-in-out;
+}
+</style>

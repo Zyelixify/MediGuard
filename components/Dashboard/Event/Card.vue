@@ -114,7 +114,7 @@ defineExpose({
       </div>
     </div>
 
-    <div v-else class="space-y-6">
+    <div v-else class="space-y-4">
       <DashboardEventItem
         v-for="eventItem in recentEvents"
         :key="eventItem.id"

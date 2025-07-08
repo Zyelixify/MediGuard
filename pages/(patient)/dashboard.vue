@@ -28,6 +28,10 @@ definePageMeta({ layout: 'simple' })
       <DashboardMedications />
 
       <DashboardCaretakers />
+
+      <DevOnly>
+        <NotificationTestCard />
+      </DevOnly>
     </div>
   </Page>
 </template>

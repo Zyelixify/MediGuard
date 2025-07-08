@@ -38,6 +38,11 @@ export default () => {
         queryKey: ['scheduledMedication', 'all', queryArgs],
         queryFn: () => $trpc.scheduledMedication.findManyMedication.query(unref(queryArgs) ?? {}),
       }),
+      nextDose: () => useQuery({
+        queryKey: ['scheduledMedication', 'nextDose'],
+        queryFn: () => $trpc.scheduledMedication.findNextDose.query(),
+        refetchInterval: 60000, // Refetch every minute to keep data fresh
+      }),
     },
     caretakerRelation: {
       all: (queryArgs: MaybeRef<Prisma.CaretakerRelationFindManyArgs>) => useQuery({

@@ -99,6 +99,118 @@ export function useDateFormatting() {
     }
   }
 
+  function formatTimeUntilRealTime(scheduledAt: Date | string, currentTime: Date): string {
+    const targetDate = new Date(scheduledAt)
+    const timeDiff = targetDate.getTime() - currentTime.getTime()
+
+    if (timeDiff <= 0) {
+      const distance = formatDistanceToNowStrict(targetDate, { addSuffix: true })
+      return distance.replace('ago', 'overdue')
+    }
+
+    return formatDistanceToNowStrict(targetDate, { addSuffix: true })
+  }
+
+  function isDoseOverdueRealTime(scheduledAt: Date | string, currentTime: Date): boolean {
+    const targetDate = new Date(scheduledAt)
+    return currentTime.getTime() > targetDate.getTime()
+  }
+
+  function isDoseTimeNowRealTime(scheduledAt: Date | string, currentTime: Date, tolerance = 30000): boolean {
+    const targetDate = new Date(scheduledAt)
+    const timeDiff = Math.abs(currentTime.getTime() - targetDate.getTime())
+    return timeDiff <= tolerance
+  }
+
+  // Real-time countdown composable
+  function useRealTimeCountdown(scheduledAt: Ref<Date | string | null>) {
+    const currentTime = ref(new Date())
+    const countdownInterval = ref<NodeJS.Timeout | null>(null)
+
+    // Start countdown timer
+    function startCountdown() {
+      if (countdownInterval.value) {
+        clearInterval(countdownInterval.value)
+      }
+
+      countdownInterval.value = setInterval(() => {
+        currentTime.value = new Date()
+      }, 1000)
+    }
+
+    function stopCountdown() {
+      if (countdownInterval.value) {
+        clearInterval(countdownInterval.value)
+        countdownInterval.value = null
+      }
+    }
+
+    const timeUntil = computed(() => {
+      if (!scheduledAt.value) {
+        return ''
+      }
+      return formatTimeUntilRealTime(scheduledAt.value, currentTime.value)
+    })
+
+    const isOverdue = computed(() => {
+      if (!scheduledAt.value) {
+        return false
+      }
+      return isDoseOverdueRealTime(scheduledAt.value, currentTime.value)
+    })
+
+    const isDoseTimeNow = computed(() => {
+      if (!scheduledAt.value) {
+        return false
+      }
+      return isDoseTimeNowRealTime(scheduledAt.value, currentTime.value)
+    })
+
+    const formattedTime = computed(() => {
+      if (!scheduledAt.value) {
+        return ''
+      }
+      return formatTime12Hour(scheduledAt.value)
+    })
+
+    const formattedDate = computed(() => {
+      if (!scheduledAt.value) {
+        return ''
+      }
+      return formatDateDisplay(scheduledAt.value)
+    })
+
+    onMounted(() => {
+      if (scheduledAt.value) {
+        startCountdown()
+      }
+    })
+
+    onUnmounted(() => {
+      stopCountdown()
+    })
+
+    watch(scheduledAt, (newScheduledAt) => {
+      if (newScheduledAt) {
+        startCountdown()
+      }
+      else {
+        stopCountdown()
+      }
+    }, { immediate: true })
+
+    return {
+      currentTime: readonly(currentTime),
+      timeUntil,
+      isOverdue,
+      isDoseTimeNow,
+      formattedTime,
+      formattedDate,
+      startCountdown,
+      stopCountdown
+    }
+  }
+
   return {
     formatTimeUntil,
     formatTimeUntilCompact,
@@ -108,5 +220,9 @@ export function useDateFormatting() {
     formatMedicationDate,
     isDoseOverdue,
     getDoseStatus,
+    formatTimeUntilRealTime,
+    isDoseOverdueRealTime,
+    isDoseTimeNowRealTime,
+    useRealTimeCountdown,
   }
 }
