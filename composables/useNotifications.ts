@@ -1,5 +1,3 @@
-import { computed, ref, watch } from 'vue'
-
 export type NotificationPermission = 'default' | 'granted' | 'denied'
 
 export interface NotificationOptions {
@@ -33,6 +31,14 @@ const isChimeEnabled = ref(true)
 const lastNotificationEvent = ref<NotificationEvent | null>(null)
 const notificationAnimation = ref(false)
 
+// Text-to-Speech state
+const isTTSSupported = ref(false)
+const isTTSEnabled = ref(true)
+const ttsVoices = ref<SpeechSynthesisVoice[]>([])
+const selectedVoice = ref<SpeechSynthesisVoice | null>(null)
+const isSpeaking = ref(false)
+const ttsInstance = ref<SpeechSynthesis | null>(null)
+
 export default function useNotifications() {
   const { scheduledMedication } = useQuery()
   const { data: nextDose } = scheduledMedication.nextDose()
@@ -50,6 +56,104 @@ export default function useNotifications() {
       }
     }
   }
+
+  const initializeTTS = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      isTTSSupported.value = true
+      ttsInstance.value = window.speechSynthesis
+
+      const loadVoices = () => {
+        const voices = speechSynthesis.getVoices()
+        ttsVoices.value = voices
+
+        if (voices.length > 0 && !selectedVoice.value) {
+          const englishVoice = voices.find(voice =>
+            voice.lang.startsWith('en-') && voice.localService
+          ) || voices.find(voice =>
+            voice.lang.startsWith('en-')
+          ) || voices[0]
+
+          selectedVoice.value = englishVoice
+        }
+      }
+
+      loadVoices()
+      speechSynthesis.addEventListener('voiceschanged', loadVoices)
+    }
+    else {
+      isTTSSupported.value = false
+      console.warn('Text-to-Speech is not supported in this browser')
+    }
+  }
+
+  const speak = async (text: string, priority: 'high' | 'normal' = 'normal'): Promise<boolean> => {
+    if (!isTTSSupported.value || !isTTSEnabled.value || !ttsInstance.value) {
+      return false
+    }
+
+    try {
+      if (priority === 'high' && isSpeaking.value) {
+        ttsInstance.value.cancel()
+      }
+
+      if (isSpeaking.value && priority === 'normal') {
+        return false
+      }
+
+      return new Promise((resolve) => {
+        const utterance = new SpeechSynthesisUtterance(text)
+
+        if (selectedVoice.value) {
+          utterance.voice = selectedVoice.value
+        }
+        utterance.rate = 0.9
+        utterance.pitch = 1.0
+        utterance.volume = 0.8
+
+        utterance.onstart = () => {
+          isSpeaking.value = true
+        }
+
+        utterance.onend = () => {
+          isSpeaking.value = false
+          resolve(true)
+        }
+
+        utterance.onerror = (error) => {
+          console.warn('TTS error:', error)
+          isSpeaking.value = false
+          resolve(false)
+        }
+
+        if (ttsInstance.value) {
+          ttsInstance.value.speak(utterance)
+        }
+      })
+    }
+    catch (error) {
+      console.error('Failed to speak text:', error)
+      isSpeaking.value = false
+      return false
+    }
+  }
+
+  const stopSpeaking = () => {
+    if (ttsInstance.value && isSpeaking.value) {
+      ttsInstance.value.cancel()
+      isSpeaking.value = false
+    }
+  }
+
+  // Generate TTS message for notifications
+  const generateTTSMessage = (type: 'dose' | 'overdue', medicationName: string, dosage?: string, overdueTime?: string): string => {
+    if (type === 'dose') {
+      return `Medication reminder: It's time to take your ${medicationName}${dosage ? ` ${dosage}` : ''}.`
+    }
+    else {
+      return `Overdue medication alert: Your ${medicationName}${dosage ? ` ${dosage}` : ''} is overdue${overdueTime ? ` by ${overdueTime}` : ''}.`
+    }
+  }
+
   // Setup app visibility detection
   const setupVisibilityDetection = () => {
     if (typeof window !== 'undefined') {
@@ -202,24 +306,40 @@ export default function useNotifications() {
       hour12: true
     }).format(scheduledTime)
 
-    return await showNotification({
+    const notification = await showNotification({
       title: '💊 Medication Reminder',
       body: `Time to take ${medicationName} (${dosage}) - scheduled for ${timeStr}`,
       icon: '/favicon.ico',
       tag: `medication-${medicationName}-${scheduledTime.getTime()}`,
       requireInteraction: true
     })
+
+    // Speak the reminder if TTS is enabled
+    if (notification && isTTSEnabled.value) {
+      const ttsMessage = generateTTSMessage('dose', medicationName, dosage)
+      await speak(ttsMessage, 'high')
+    }
+
+    return notification
   }
 
   // Show overdue medication notification
   const showOverdueReminder = async (medicationName: string, dosage: string, overdueTime: string) => {
-    return await showNotification({
+    const notification = await showNotification({
       title: '🚨 Overdue Medication',
       body: `${medicationName} (${dosage}) is overdue by ${overdueTime}`,
       icon: '/favicon.ico',
       tag: `overdue-${medicationName}`,
       requireInteraction: true
     })
+
+    // Speak the overdue alert if TTS is enabled
+    if (notification && isTTSEnabled.value) {
+      const ttsMessage = generateTTSMessage('overdue', medicationName, dosage, overdueTime)
+      await speak(ttsMessage, 'high')
+    }
+
+    return notification
   }
 
   // Send notification for the next dose
@@ -340,6 +460,7 @@ export default function useNotifications() {
 
     checkSupport()
     initializeAudio()
+    initializeTTS()
     setupVisibilityDetection()
 
     if (isEnabled.value) {
@@ -394,6 +515,13 @@ export default function useNotifications() {
     notificationAnimation: readonly(notificationAnimation),
     isAppVisible: readonly(isAppVisible),
 
+    // TTS state
+    isTTSSupported: readonly(isTTSSupported),
+    isTTSEnabled,
+    isSpeaking: readonly(isSpeaking),
+    ttsVoices: readonly(ttsVoices),
+    selectedVoice,
+
     // Computed properties
     shouldNotify,
     isOverdue,
@@ -401,6 +529,11 @@ export default function useNotifications() {
 
     // Main methods
     requestPermission,
-    initializeService
+    initializeService,
+
+    // TTS methods
+    speak,
+    stopSpeaking,
+    generateTTSMessage
   }
 }

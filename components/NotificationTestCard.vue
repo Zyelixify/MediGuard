@@ -4,12 +4,27 @@ const {
   isEnabled,
   canRequestPermission,
   requestPermission,
-  isAppVisible
+  isAppVisible,
+  isTTSSupported,
+  isTTSEnabled,
+  isSpeaking,
+  ttsVoices,
+  selectedVoice,
+  speak,
+  stopSpeaking,
+  generateTTSMessage,
+  initializeService
 } = useNotifications()
 
 const isTesting = ref(false)
 const isTestingChime = ref(false)
+const isTestingTTS = ref(false)
 const lastTestTime = ref<Date | null>(null)
+
+// Initialize notification service (including TTS)
+onMounted(() => {
+  initializeService()
+})
 
 // Test dose reminder notification
 async function testDoseReminder() {
@@ -32,6 +47,12 @@ async function testDoseReminder() {
     // If app is visible, play chime
     if (isAppVisible.value) {
       await playTestChime()
+    }
+
+    // Test TTS if enabled
+    if (isTTSEnabled.value && isTTSSupported.value) {
+      const ttsMessage = generateTTSMessage('dose', 'Test Medication', '100mg')
+      await speak(ttsMessage, 'high')
     }
 
     setTimeout(() => {
@@ -70,6 +91,12 @@ async function testOverdueReminder() {
       await playTestChime()
     }
 
+    // Test TTS if enabled
+    if (isTTSEnabled.value && isTTSSupported.value) {
+      const ttsMessage = generateTTSMessage('overdue', 'Test Medication', '100mg', '15 minutes')
+      await speak(ttsMessage, 'high')
+    }
+
     setTimeout(() => {
       notification.close()
     }, 5000)
@@ -102,6 +129,48 @@ async function testChimeOnly() {
   }
 }
 
+async function testTTSOnly() {
+  if (!isTTSSupported.value) {
+    useToastMessage('warning', 'Text-to-Speech not supported in this browser')
+    return
+  }
+
+  isTestingTTS.value = true
+  lastTestTime.value = new Date()
+
+  try {
+    const testMessage = 'This is a test of the medication reminder voice system. Text-to-Speech is working correctly.'
+    const success = await speak(testMessage, 'high')
+
+    if (success) {
+      useToastMessage('success', 'TTS test completed!')
+    }
+    else {
+      useToastMessage('warning', 'TTS is disabled or failed to speak')
+    }
+  }
+  catch (error) {
+    console.error('TTS test failed:', error)
+    useToastMessage('error', 'TTS test failed')
+  }
+  finally {
+    isTestingTTS.value = false
+  }
+}
+
+function toggleTTS() {
+  isTTSEnabled.value = !isTTSEnabled.value
+  const status = isTTSEnabled.value ? 'enabled' : 'disabled'
+  useToastMessage('info', `Text-to-Speech ${status}`)
+}
+
+function stopCurrentSpeech() {
+  if (isSpeaking.value) {
+    stopSpeaking()
+    useToastMessage('info', 'Speech stopped')
+  }
+}
+
 // Helper functions to test audio
 async function playTestChime() {
   try {
@@ -123,23 +192,22 @@ async function playTestChime() {
       <div class="flex items-center gap-2 sm:gap-3">
         <UIcon name="ic:round-notifications" class="text-primary text-lg sm:text-xl flex-shrink-0" />
         <h3 class="text-base sm:text-xl font-semibold text-default">
-          Notification Test
+          Notification Demo Test (Dev Only)
         </h3>
       </div>
     </template>
 
     <div class="space-y-4">
       <p class="text-sm text-muted">
-        Test the notification system and audio chimes. Make sure notifications are enabled first.
+        Test the notification system, audio chimes, and text-to-speech (TTS). Make sure notifications are enabled first.
       </p>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <UButton
           variant="outline"
           color="primary"
           icon="ic:round-medication"
           :loading="isTesting"
-          :disabled="isTesting || !isEnabled"
           @click="testDoseReminder"
         >
           Test Dose Reminder
@@ -150,7 +218,6 @@ async function playTestChime() {
           color="error"
           icon="ic:round-warning"
           :loading="isTesting"
-          :disabled="isTesting || !isEnabled"
           @click="testOverdueReminder"
         >
           Test Overdue Alert
@@ -166,6 +233,59 @@ async function playTestChime() {
         >
           Test Chime Only
         </UButton>
+
+        <UButton
+          variant="outline"
+          color="info"
+          icon="ic:round-record-voice-over"
+          :loading="isTestingTTS"
+          :disabled="isTestingTTS || !isTTSSupported"
+          @click="testTTSOnly"
+        >
+          Test TTS Only
+        </UButton>
+
+        <UButton
+          variant="outline"
+          :color="isTTSEnabled ? 'success' : 'neutral'"
+          :icon="isTTSEnabled ? 'ic:round-volume-up' : 'ic:round-volume-off'"
+          :disabled="!isTTSSupported"
+          @click="toggleTTS"
+        >
+          {{ isTTSEnabled ? 'TTS On' : 'TTS Off' }}
+        </UButton>
+
+        <UButton
+          variant="outline"
+          color="error"
+          icon="ic:round-stop"
+          :disabled="!isSpeaking"
+          @click="stopCurrentSpeech"
+        >
+          Stop Speech
+        </UButton>
+      </div>
+
+      <!-- Voice Selection -->
+      <div v-if="isTTSSupported && ttsVoices.length > 0" class="space-y-2">
+        <label class="text-sm font-medium text-default">
+          Voice Selection:
+        </label>
+        <select
+          v-model="selectedVoice"
+          class="px-3 py-2 border border-gray-300 rounded-md bg-white dark:bg-gray-800 dark:border-gray-600 text-sm max-w-md"
+        >
+          <option :value="null">
+            Default Voice
+          </option>
+          <option
+            v-for="voice in ttsVoices"
+            :key="voice.name"
+            :value="voice"
+          >
+            {{ voice.name }} ({{ voice.lang }})
+          </option>
+        </select>
       </div>
 
       <div class="flex flex-wrap gap-2">
@@ -186,6 +306,32 @@ async function playTestChime() {
         </UBadge>
 
         <UBadge
+          :color="isTTSSupported ? 'success' : 'error'"
+          variant="soft"
+          size="sm"
+        >
+          {{ isTTSSupported ? 'TTS Supported' : 'TTS Not Supported' }}
+        </UBadge>
+
+        <UBadge
+          v-if="isTTSSupported"
+          :color="isTTSEnabled ? 'success' : 'warning'"
+          variant="soft"
+          size="sm"
+        >
+          {{ isTTSEnabled ? 'TTS Enabled' : 'TTS Disabled' }}
+        </UBadge>
+
+        <UBadge
+          v-if="isSpeaking"
+          color="info"
+          variant="soft"
+          size="sm"
+        >
+          Speaking...
+        </UBadge>
+
+        <UBadge
           v-if="isAppVisible"
           color="primary"
           variant="soft"
@@ -201,6 +347,15 @@ async function playTestChime() {
           size="sm"
         >
           App Hidden (System Sound)
+        </UBadge>
+
+        <UBadge
+          v-if="isTTSSupported && ttsVoices.length > 0"
+          color="info"
+          variant="soft"
+          size="sm"
+        >
+          {{ ttsVoices.length }} Voice{{ ttsVoices.length !== 1 ? 's' : '' }} Available
         </UBadge>
       </div>
 
