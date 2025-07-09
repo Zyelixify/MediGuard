@@ -91,6 +91,7 @@ const columns: TableColumn<CaretakerRelationGetMany>[] = [
             'square': true,
             'size': 'sm',
             'aria-label': 'Expand',
+            'icon': 'ic:round-chevron-right',
             'ui': {
               leadingIcon: [
                 'transition-transform duration-200',

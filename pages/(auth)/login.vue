@@ -100,7 +100,7 @@ async function handleSignup() {
   <div class="flex flex-grow flex-col items-center justify-center w-full max-w-4xl mx-auto gap-6">
     <Logo />
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full p-2">
       <!-- Login Card -->
       <Card class="w-full">
         <template #header>

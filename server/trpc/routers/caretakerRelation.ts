@@ -58,6 +58,11 @@ export const router = createRouter({
       throw new Error('Caretaker relation not found')
     }
 
+    const updatedRelation = await ctx.prisma.caretakerRelation.update({
+      where: { id: input.id, patientId: ctx.session?.user.id },
+      data: { isConfirmed: true },
+    })
+
     await ctx.prisma.event.create({
       data: {
         type: 'CaretakerRelationConfirmed',
@@ -68,10 +73,7 @@ export const router = createRouter({
       },
     })
 
-    return ctx.prisma.caretakerRelation.update({
-      where: { id: input.id, patientId: ctx.session?.user.id },
-      data: { isConfirmed: true },
-    })
+    return updatedRelation
   }),
   delete: shieldedProcedure.input(z.object({ id: z.string() }).passthrough()).mutation(async ({ input, ctx }) => {
     return ctx.prisma.caretakerRelation.delete({

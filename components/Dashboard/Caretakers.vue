@@ -275,7 +275,6 @@ async function handleDeleteCaretaker(caretaker: any) {
               color="success"
               icon="ic:round-check-circle"
               size="sm"
-              label="Confirm caretaker"
               :loading="confirmRelation.isPending.value"
               @click="confirmRelation.mutateAsync({ id: caretaker.id })"
             />
@@ -287,7 +286,6 @@ async function handleDeleteCaretaker(caretaker: any) {
               color="error"
               icon="ic:round-delete"
               size="sm"
-              label="Remove caretaker"
               :loading="deleteRelation.isPending.value"
               @click="() => handleDeleteCaretaker(caretaker)"
             />
