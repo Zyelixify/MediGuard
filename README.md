@@ -44,3 +44,5 @@ pnpm build
 The development environment is preconfigured to run on GitHub Codespaces. You can start the project by clicking the "Code" button and selecting "Open with Codespaces".
 
 Afterwards, just wait while the devcontainer is built and the dependencies are installed. Once this is done, the dev server will automatically start and you can access the application through the link provided in the terminal.
+
+For testing on mobile, a QR code will be generated in the terminal that you can scan with your mobile device to access the application. It will be shown after Nuxt has successfully started.

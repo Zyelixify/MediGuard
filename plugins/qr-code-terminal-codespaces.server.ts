@@ -33,6 +33,6 @@ export default defineNuxtPlugin(() => {
       catch (error) {
         console.error('❌ Failed to generate Codespaces QR code:', error)
       }
-    }, 2000) // Wait 2 seconds after Nuxt startup
+    }, 500)
   }
 })
