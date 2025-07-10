@@ -19,7 +19,6 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/ui',
     '@sidebase/nuxt-auth',
-    '@vite-pwa/nuxt',
   ],
   css: ['~/assets/css/main.css'],
   build: {
@@ -41,10 +40,6 @@ export default defineNuxtConfig({
   devtools: {
     enabled: false,
   },
-  devServer: {
-    host: '0.0.0.0',
-    port: 3000
-  },
   ui: {
     theme: {
       colors: [
@@ -56,38 +51,6 @@ export default defineNuxtConfig({
         'warning',
         'error'
       ]
-    }
-  },
-  pwa: {
-    registerType: 'autoUpdate',
-    manifest: {
-      name: 'MediGuard',
-      short_name: 'MediGuard',
-      description: 'Medication tracking and reminder application',
-      theme_color: '#ffffff',
-      icons: [
-        {
-          src: 'pwa/icon-192x192.svg',
-          sizes: '192x192',
-          type: 'image/svg+xml'
-        },
-        {
-          src: 'pwa/icon-512x512.svg',
-          sizes: '512x512',
-          type: 'image/svg+xml'
-        }
-      ]
-    },
-    workbox: {
-      navigateFallback: '/',
-      globPatterns: ['**/*.{js,css,html,ico,png,svg}']
-    },
-    client: {
-      installPrompt: true,
-    },
-    devOptions: {
-      enabled: true,
-      type: 'module'
     }
   }
 })
