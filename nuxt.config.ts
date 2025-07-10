@@ -15,7 +15,7 @@ export default defineNuxtConfig({
   },
   plugins: [
     '~/plugins/trpcClient.ts',
-    '~/plugins/qr-code-terminal.server.ts',
+    '~/plugins/qr-code-terminal-codespaces.server.ts',
   ],
   modules: [
     '@nuxt/ui',
@@ -40,6 +40,11 @@ export default defineNuxtConfig({
   },
   devtools: {
     enabled: false,
+  },
+  nitro: {
+    experimental: {
+      wasm: true,
+    },
   },
   ui: {
     theme: {
