@@ -8,7 +8,7 @@
   "postStartCommand": "pnpm prisma db push && pnpm prisma generate",
   "postAttachCommand": {
     "server": "pnpm dev",
-    "port-config": "gh codespace ports visibility 3000:public --codespace $CODESPACE_NAME 2>/dev/null || echo '💡 Tip: Make port 3000 public in VS Code Ports panel for external access'"
+    "port-config": "sleep 5 && --gh codespace ports visibility 3000:public --codespace $CODESPACE_NAME 2>/dev/null || echo '💡 Tip: Make port 3000 public in VS Code Ports panel for external access'"
   },
   "forwardPorts": [3000],
   "portsAttributes": {
