@@ -39,7 +39,6 @@ const notificationAnimation = ref(false)
 // Text-to-Speech state
 const isTTSSupported = ref(false)
 const isTTSEnabled = ref(true)
-const ttsVoices = ref<SpeechSynthesisVoice[]>([])
 const selectedVoice = ref<SpeechSynthesisVoice | null>(null)
 const isSpeaking = ref(false)
 const ttsInstance = ref<SpeechSynthesis | null>(null)
@@ -69,16 +68,20 @@ export default function useNotifications() {
 
       const loadVoices = () => {
         const voices = speechSynthesis.getVoices()
-        ttsVoices.value = voices
 
         if (voices.length > 0 && !selectedVoice.value) {
-          const englishVoice = voices.find(voice =>
+          // Prefer en-US voices first
+          const enUSVoiceWithFallback = voices.find(voice =>
+            voice.lang === 'en-US' && voice.localService
+          ) || voices.find(voice =>
+            voice.lang === 'en-US'
+          ) || voices.find(voice =>
             voice.lang.startsWith('en-') && voice.localService
           ) || voices.find(voice =>
             voice.lang.startsWith('en-')
           ) || voices[0]
 
-          selectedVoice.value = englishVoice
+          selectedVoice.value = enUSVoiceWithFallback
         }
       }
 
@@ -614,8 +617,7 @@ export default function useNotifications() {
     isTTSSupported: readonly(isTTSSupported),
     isTTSEnabled,
     isSpeaking: readonly(isSpeaking),
-    ttsVoices: readonly(ttsVoices),
-    selectedVoice,
+    selectedVoice: readonly(selectedVoice),
 
     // Computed properties
     shouldNotify,

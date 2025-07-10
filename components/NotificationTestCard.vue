@@ -8,8 +8,6 @@ const {
   isTTSSupported,
   isTTSEnabled,
   isSpeaking,
-  ttsVoices,
-  selectedVoice,
   speak,
   stopSpeaking,
   generateTTSMessage,
@@ -138,8 +136,7 @@ async function testTTSOnly() {
   lastTestTime.value = new Date()
 
   try {
-    const voiceName = selectedVoice.value ? selectedVoice.value.name : 'Default'
-    const testMessage = `This is a test of the medication reminder voice system using ${voiceName}. Text-to-Speech is working correctly.`
+    const testMessage = `This is a test of the medication reminder voice system. Text-to-Speech is working correctly.`
     const success = await speak(testMessage, 'high')
 
     if (!success) {
@@ -261,28 +258,6 @@ async function playTestChime() {
         </UButton>
       </div>
 
-      <!-- Voice Selection -->
-      <div v-if="isTTSSupported && ttsVoices.length > 0" class="space-y-2">
-        <label class="text-sm font-medium text-default">
-          Voice Selection:
-        </label>
-        <select
-          v-model="selectedVoice"
-          class="px-3 py-2 border border-gray-300 rounded-md bg-white dark:bg-gray-800 dark:border-gray-600 text-sm max-w-md"
-        >
-          <option :value="null">
-            Default Voice
-          </option>
-          <option
-            v-for="voice in ttsVoices"
-            :key="voice.name"
-            :value="voice"
-          >
-            {{ voice.name }} ({{ voice.lang }})
-          </option>
-        </select>
-      </div>
-
       <div class="flex flex-wrap gap-2">
         <UBadge
           :color="isSupported ? 'success' : 'error'"
@@ -342,15 +317,6 @@ async function playTestChime() {
           size="sm"
         >
           App Hidden (System Sound)
-        </UBadge>
-
-        <UBadge
-          v-if="isTTSSupported && ttsVoices.length > 0"
-          color="info"
-          variant="soft"
-          size="sm"
-        >
-          {{ ttsVoices.length }} Voice{{ ttsVoices.length !== 1 ? 's' : '' }} Available
         </UBadge>
 
         <UBadge
