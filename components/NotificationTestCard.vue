@@ -13,7 +13,9 @@ const {
   speak,
   stopSpeaking,
   generateTTSMessage,
-  initializeService
+  initializeService,
+  isServiceWorkerSupported,
+  useServiceWorker
 } = useNotifications()
 
 const isTesting = ref(false)
@@ -349,6 +351,23 @@ async function playTestChime() {
           size="sm"
         >
           {{ ttsVoices.length }} Voice{{ ttsVoices.length !== 1 ? 's' : '' }} Available
+        </UBadge>
+
+        <UBadge
+          :color="isServiceWorkerSupported ? 'success' : 'neutral'"
+          variant="soft"
+          size="sm"
+        >
+          {{ isServiceWorkerSupported ? 'Service Worker Available' : 'Service Worker Not Supported' }}
+        </UBadge>
+
+        <UBadge
+          v-if="isServiceWorkerSupported"
+          :color="useServiceWorker ? 'success' : 'warning'"
+          variant="soft"
+          size="sm"
+        >
+          {{ useServiceWorker ? 'Using Service Worker' : 'Using Direct API' }}
         </UBadge>
       </div>
 

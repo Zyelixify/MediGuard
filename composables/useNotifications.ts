@@ -24,6 +24,11 @@ const lastNotificationTime = ref<Date | null>(null)
 const notificationInterval = ref<NodeJS.Timeout | null>(null)
 const notifiedDoses = ref(new Set<string>())
 
+// Service Worker state
+const serviceWorkerRegistration = ref<ServiceWorkerRegistration | null>(null)
+const isServiceWorkerSupported = ref(false)
+const useServiceWorker = ref(false)
+
 // Audio and animation state
 const isAppVisible = ref(true)
 const audioElement = ref<HTMLAudioElement | null>(null)
@@ -203,14 +208,60 @@ export default function useNotifications() {
   }
 
   const checkSupport = () => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      isSupported.value = true
-      notificationPermission.value = Notification.permission as NotificationPermission
-      isEnabled.value = notificationPermission.value === 'granted'
+    if (typeof window !== 'undefined') {
+      // Check for Notification API support
+      const hasNotificationAPI = 'Notification' in window
+
+      // Check for Service Worker support (better for mobile)
+      const hasServiceWorker = 'serviceWorker' in navigator
+
+      // Support notifications if either API is available
+      isSupported.value = hasNotificationAPI || hasServiceWorker
+
+      if (hasNotificationAPI) {
+        notificationPermission.value = Notification.permission as NotificationPermission
+        isEnabled.value = notificationPermission.value === 'granted'
+      }
+      else {
+        // For Service Worker only, we still need notification permission
+        notificationPermission.value = 'default'
+        isEnabled.value = false
+      }
     }
     else {
       isSupported.value = false
       isEnabled.value = false
+    }
+  }
+
+  // Initialize Service Worker for notifications
+  const initializeServiceWorker = async () => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      try {
+        isServiceWorkerSupported.value = true
+
+        // Register service worker
+        const registration = await navigator.serviceWorker.register('/sw.js', {
+          scope: '/'
+        })
+
+        serviceWorkerRegistration.value = registration
+
+        // Wait for service worker to be ready
+        await navigator.serviceWorker.ready
+
+        // Prefer Service Worker for notifications if supported
+        useServiceWorker.value = true
+      }
+      catch (error) {
+        console.warn('Service Worker registration failed, falling back to direct notifications:', error)
+        useServiceWorker.value = false
+      }
+    }
+    else {
+      isServiceWorkerSupported.value = false
+      useServiceWorker.value = false
+      console.warn('Service Worker not supported, using direct notifications')
     }
   }
 
@@ -258,7 +309,7 @@ export default function useNotifications() {
     return timeDiff <= 60000 && timeDiff >= 0
   })
 
-  // Show a system notification
+  // Show a system notification (Service Worker or direct)
   const showNotification = async (options: NotificationOptions): Promise<Notification | null> => {
     if (!isEnabled.value) {
       console.warn('Notifications are not enabled or permission was denied')
@@ -268,30 +319,67 @@ export default function useNotifications() {
     try {
       const shouldMuteSystem = isAppVisible.value && isChimeEnabled.value
 
-      const notification = new Notification(options.title, {
-        body: options.body,
-        icon: options.icon || '/favicon.ico',
-        tag: options.tag,
-        requireInteraction: options.requireInteraction || false,
-        silent: shouldMuteSystem || options.silent || false
-      })
+      // Try Service Worker notifications first (better mobile support)
+      if (useServiceWorker.value && serviceWorkerRegistration.value) {
+        // Send message to service worker to show notification
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'SHOW_NOTIFICATION',
+            payload: {
+              title: options.title,
+              options: {
+                body: options.body,
+                icon: options.icon || '/favicon.ico',
+                tag: options.tag,
+                requireInteraction: options.requireInteraction || false,
+                silent: shouldMuteSystem || options.silent || false,
+                url: '/' // URL to open when clicked
+              }
+            }
+          })
 
-      // If app is visible and chime is enabled, play our custom chime
-      if (shouldMuteSystem) {
-        await playChime()
+          // If app is visible and chime is enabled, play our custom chime
+          if (shouldMuteSystem) {
+            await playChime()
+          }
+
+          // Always trigger the visual animation when notifications are sent
+          triggerAnimation()
+
+          // Return a mock notification object for compatibility
+          return { close: () => {} } as Notification
+        }
       }
 
-      // Always trigger the visual animation when notifications are sent
-      triggerAnimation()
+      // Fallback to direct Notification API
+      if ('Notification' in window) {
+        const notification = new Notification(options.title, {
+          body: options.body,
+          icon: options.icon || '/favicon.ico',
+          tag: options.tag,
+          requireInteraction: options.requireInteraction || false,
+          silent: shouldMuteSystem || options.silent || false
+        })
 
-      // Auto-close notification after 8 seconds if not requiring interaction
-      if (!options.requireInteraction) {
-        setTimeout(() => {
-          notification.close()
-        }, 8000)
+        // If app is visible and chime is enabled, play our custom chime
+        if (shouldMuteSystem) {
+          await playChime()
+        }
+
+        // Always trigger the visual animation when notifications are sent
+        triggerAnimation()
+
+        // Auto-close notification after 8 seconds if not requiring interaction
+        if (!options.requireInteraction) {
+          setTimeout(() => {
+            notification.close()
+          }, 8000)
+        }
+
+        return notification
       }
 
-      return notification
+      throw new Error('No notification method available')
     }
     catch (error) {
       console.error('Failed to show notification:', error)
@@ -462,6 +550,7 @@ export default function useNotifications() {
     initializeAudio()
     initializeTTS()
     setupVisibilityDetection()
+    initializeServiceWorker()
 
     if (isEnabled.value) {
       startMonitoring()
@@ -509,6 +598,10 @@ export default function useNotifications() {
     notificationPermission: readonly(notificationPermission),
     canRequestPermission,
     isBlocked,
+
+    // Service Worker state
+    isServiceWorkerSupported: readonly(isServiceWorkerSupported),
+    useServiceWorker: readonly(useServiceWorker),
 
     // Notification state
     lastNotificationEvent: readonly(lastNotificationEvent),
