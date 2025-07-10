@@ -46,3 +46,6 @@ The development environment is preconfigured to run on GitHub Codespaces. You ca
 Afterwards, just wait while the devcontainer is built and the dependencies are installed. Once this is done, the dev server will automatically start and you can access the application through the link provided in the terminal.
 
 For testing on mobile, a QR code will be generated in the terminal that you can scan with your mobile device to access the application. It will be shown after Nuxt has successfully started.
+
+> [!IMPORTANT]  
+> New dependencies are loaded as needed in the development server. Example, when first signing up, new dependencies will be loaded and listed in the terminal. Whenever this happens, it will take a bit longer to process actions while the new dependencies are loaded. 
