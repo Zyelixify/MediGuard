@@ -44,9 +44,11 @@ function openMedicationCreationModal() {
         <h2 class="text-base sm:text-xl font-semibold text-default">
           My Medications
         </h2>
-        <UBadge v-if="medications.length > 0" variant="soft" color="primary" size="sm" class="sm:size-md">
-          {{ medications.length }}
-        </UBadge>
+        <ClientOnly>
+          <UBadge v-if="medications.length > 0" variant="soft" color="primary" size="sm" class="sm:size-md">
+            {{ medications.length }}
+          </UBadge>
+        </ClientOnly>
       </div>
     </template>
 
@@ -75,20 +77,28 @@ function openMedicationCreationModal() {
       </div>
     </template>
 
-    <div v-if="medicationsLoading" class="flex items-center justify-center py-8">
-      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500" />
-      <span class="ml-2 text-sm text-muted">Loading medications...</span>
-    </div>
+    <ClientOnly>
+      <div v-if="medicationsLoading" class="flex items-center justify-center py-8">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500" />
+        <span class="ml-2 text-sm text-muted">Loading medications...</span>
+      </div>
 
-    <div v-else-if="medications.length === 0" class="flex flex-col items-center justify-center py-8 space-y-2">
-      <UIcon name="ic:round-medication" class="text-muted text-4xl" />
-      <p class="text-sm text-muted">
-        No medications found
-      </p>
-    </div>
+      <div v-else-if="medications.length === 0" class="flex flex-col items-center justify-center py-8 space-y-2">
+        <UIcon name="ic:round-medication" class="text-muted text-4xl" />
+        <p class="text-sm text-muted">
+          No medications found
+        </p>
+      </div>
 
-    <div v-else>
-      <MedicationCarousel :medications="medications" />
-    </div>
+      <div v-else>
+        <MedicationCarousel :medications="medications" />
+      </div>
+
+      <template #fallback>
+        <div class="flex items-center justify-center py-8">
+          <UIcon name="ic:round-medication" class="text-muted text-4xl" />
+        </div>
+      </template>
+    </ClientOnly>
   </Card>
 </template>

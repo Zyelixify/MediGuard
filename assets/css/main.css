@@ -289,3 +289,70 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Fix for hydration mismatches with flex layouts */
+.flex {
+  display: flex !important;
+}
+
+.flex-col {
+  flex-direction: column !important;
+}
+
+.flex-row {
+  flex-direction: row !important;
+}
+
+/* Hide content during hydration to prevent flicker */
+[data-hydration-pending] {
+  visibility: hidden;
+}
+
+/* Fix for transitions causing layout shifts */
+.nuxt-loading {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.nuxt-loading-enter, .nuxt-loading-leave-to {
+  opacity: 0;
+}
+
+.nuxt-loading-enter-active, .nuxt-loading-leave-active {
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* Server-client hydration fixes */
+[data-client-loaded="true"] .flex-col {
+  flex-direction: column !important;
+}
+
+[data-client-loaded="true"] .flex-row {
+  flex-direction: row !important;
+}
+
+/* Ensure consistent flex properties during hydration */
+.items-center {
+  align-items: center !important;
+}
+
+.justify-center {
+  justify-content: center !important;
+}
+
+/* Prevent content flashing during hydration */
+[data-route-pending="true"] .page-content {
+  opacity: 0.8;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Fix for card animations */
+.card-enter-active,
+.card-leave-active {
+  transition: all 0.3s ease;
+}
+.card-enter-from,
+.card-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
