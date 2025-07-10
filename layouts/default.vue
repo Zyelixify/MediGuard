@@ -35,7 +35,6 @@ useHead({ title: appName })
       </div>
     </div>
 
-    <!-- Mobile Layout -->
     <div class="md:hidden fixed bottom-0 left-0 right-0 bg-muted border-t border-default z-50 ">
       <div class="px-4 py-2 flex justify-between">
         <UNavigationMenu
@@ -63,7 +62,6 @@ useHead({ title: appName })
           </div>
         </div>
       </div>
-      <!-- End of Mobile Layout -->
 
       <main class="flex-1 focus:outline-none bg-default min-h-screen overflow-y-scroll custom-scrollbar">
         <slot />

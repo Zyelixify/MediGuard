@@ -290,7 +290,6 @@ function markAsTaken() {
           </div>
         </div>
 
-        <!-- Mobile Action Button -->
         <div class="sm:hidden">
           <UButton
             block

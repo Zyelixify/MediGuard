@@ -80,19 +80,6 @@ async function handleRemovePatient(patient: any) {
             @click="refetch()"
           />
         </UTooltip>
-        <!-- Mobile: Show only icon -->
-        <UTooltip text="Refresh patient list">
-          <UButton
-            size="sm"
-            variant="ghost"
-            color="neutral"
-            icon="ic:round-refresh"
-            :loading="isRefreshing"
-            :disabled="isRefreshing || isLoading"
-            class="flex sm:hidden"
-            @click="refetch()"
-          />
-        </UTooltip>
       </div>
     </template>
 

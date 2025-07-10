@@ -16,17 +16,13 @@ export default defineNuxtPlugin(() => {
           const url = `https://${codespaceUrl}-${port}.app.github.dev`
 
           const qrString = await QRCode.toString(url, {
-            type: 'terminal',
-            small: true,
-            margin: 1,
-            color: {
-              dark: '#000000',
-              light: '#FFFFFF'
-            }
+            type: 'utf8',
+            margin: 2,
+            errorCorrectionLevel: 'M'
           })
 
           console.log('')
-          console.log('🎯 GitHub Codespaces URL:')
+          console.log('🎯 GitHub Codespaces Mobile QRCode:')
           console.log('')
           console.log(qrString)
           console.log('')
