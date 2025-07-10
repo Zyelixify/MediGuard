@@ -15,7 +15,6 @@ export default defineNuxtConfig({
   },
   plugins: [
     '~/plugins/trpcClient.ts',
-    '~/plugins/qr-code-terminal-codespaces.server.ts',
   ],
   modules: [
     '@nuxt/ui',
@@ -40,6 +39,11 @@ export default defineNuxtConfig({
   },
   devtools: {
     enabled: false,
+  },
+  devServer: {
+    url: process.env.CODESPACE_NAME
+      ? `https://${process.env.CODESPACE_NAME}-${process.env.PORT || '3000'}.app.github.dev`
+      : undefined,
   },
   nitro: {
     experimental: {
