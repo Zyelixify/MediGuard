@@ -321,20 +321,18 @@ export default function useNotifications() {
 
       // Try Service Worker notifications first (better mobile support)
       if (useServiceWorker.value && serviceWorkerRegistration.value) {
-        // Send message to service worker to show notification
-        if (navigator.serviceWorker.controller) {
-          navigator.serviceWorker.controller.postMessage({
-            type: 'SHOW_NOTIFICATION',
-            payload: {
-              title: options.title,
-              options: {
-                body: options.body,
-                icon: options.icon || '/favicon.ico',
-                tag: options.tag,
-                requireInteraction: options.requireInteraction || false,
-                silent: shouldMuteSystem || options.silent || false,
-                url: '/' // URL to open when clicked
-              }
+        try {
+          // Use the registration directly to show notification
+          await serviceWorkerRegistration.value.showNotification(options.title, {
+            body: options.body,
+            icon: options.icon || '/favicon.ico',
+            tag: options.tag,
+            requireInteraction: options.requireInteraction || false,
+            silent: shouldMuteSystem || options.silent || false,
+            badge: '/favicon.ico',
+            data: {
+              url: '/',
+              timestamp: Date.now()
             }
           })
 
@@ -348,6 +346,10 @@ export default function useNotifications() {
 
           // Return a mock notification object for compatibility
           return { close: () => {} } as Notification
+        }
+        catch (swError) {
+          console.warn('Service Worker notification failed, falling back to direct API:', swError)
+          // Fall through to direct API
         }
       }
 
@@ -623,6 +625,7 @@ export default function useNotifications() {
     // Main methods
     requestPermission,
     initializeService,
+    showNotification,
 
     // TTS methods
     speak,

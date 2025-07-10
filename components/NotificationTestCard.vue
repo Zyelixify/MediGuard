@@ -15,7 +15,8 @@ const {
   generateTTSMessage,
   initializeService,
   isServiceWorkerSupported,
-  useServiceWorker
+  useServiceWorker,
+  showNotification
 } = useNotifications()
 
 const isTesting = ref(false)
@@ -38,7 +39,8 @@ async function testDoseReminder() {
   lastTestTime.value = new Date()
 
   try {
-    const notification = new Notification('💊 Medication Reminder', {
+    const notification = await showNotification({
+      title: '💊 Medication Reminder',
       body: 'Time to take Test Medication (100mg) - scheduled for now',
       icon: '/favicon.ico',
       tag: 'test-dose-reminder',
@@ -46,20 +48,18 @@ async function testDoseReminder() {
       silent: isAppVisible.value
     })
 
-    // If app is visible, play chime
-    if (isAppVisible.value) {
-      await playTestChime()
-    }
-
     // Test TTS if enabled
     if (isTTSEnabled.value && isTTSSupported.value) {
       const ttsMessage = generateTTSMessage('dose', 'Test Medication', '100mg')
       await speak(ttsMessage, 'high')
     }
 
-    setTimeout(() => {
-      notification.close()
-    }, 5000)
+    // Auto-close notification after 5 seconds if it was created
+    if (notification && notification.close) {
+      setTimeout(() => {
+        notification.close()
+      }, 5000)
+    }
 
     useToastMessage('success', 'Test dose reminder sent!')
   }
@@ -80,7 +80,8 @@ async function testOverdueReminder() {
   lastTestTime.value = new Date()
 
   try {
-    const notification = new Notification('🚨 Overdue Medication', {
+    const notification = await showNotification({
+      title: '🚨 Overdue Medication',
       body: 'Test Medication (100mg) is overdue by 15 minutes',
       icon: '/favicon.ico',
       tag: 'test-overdue-reminder',
@@ -88,19 +89,18 @@ async function testOverdueReminder() {
       silent: isAppVisible.value
     })
 
-    if (isAppVisible.value) {
-      await playTestChime()
-    }
-
     // Test TTS if enabled
     if (isTTSEnabled.value && isTTSSupported.value) {
       const ttsMessage = generateTTSMessage('overdue', 'Test Medication', '100mg', '15 minutes')
       await speak(ttsMessage, 'high')
     }
 
-    setTimeout(() => {
-      notification.close()
-    }, 5000)
+    // Auto-close notification after 5 seconds if it was created
+    if (notification && notification.close) {
+      setTimeout(() => {
+        notification.close()
+      }, 5000)
+    }
 
     useToastMessage('success', 'Test overdue alert sent!')
   }
