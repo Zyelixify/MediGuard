@@ -6,7 +6,7 @@
   },
   "postCreateCommand": "npm install -g pnpm && pnpm install",    
   "postStartCommand": "pnpm prisma db push && pnpm prisma generate",
-  "postAttachCommand": "pnpm run dev",
+  "postAttachCommand": "pnpm dev",
   "forwardPorts": [3000],
   "portsAttributes": {
     "3000": {

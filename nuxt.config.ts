@@ -15,6 +15,7 @@ export default defineNuxtConfig({
   },
   plugins: [
     '~/plugins/trpcClient.ts',
+    '~/plugins/qr-code-terminal.server.ts',
   ],
   modules: [
     '@nuxt/ui',
