@@ -62,8 +62,7 @@ async function testDoseReminder() {
     useToastMessage('success', 'Test dose reminder sent!')
   }
   catch (error) {
-    console.error('Test notification failed:', error)
-    useToastMessage('error', 'Test notification failed')
+    useToastMessage('error', `Test notification failed due to error: ${error}`)
   }
   finally {
     isTesting.value = false
@@ -104,8 +103,7 @@ async function testOverdueReminder() {
     useToastMessage('success', 'Test overdue alert sent!')
   }
   catch (error) {
-    console.error('Test notification failed:', error)
-    useToastMessage('error', 'Test notification failed')
+    useToastMessage('error', `Test notification failed due to error: ${error}`)
   }
   finally {
     isTesting.value = false
@@ -121,8 +119,7 @@ async function testChimeOnly() {
     useToastMessage('success', 'Test chime played!')
   }
   catch (error) {
-    console.error('Test chime failed:', error)
-    useToastMessage('warning', 'Chime not available (check audio file)')
+    useToastMessage('warning', `Chime failed to play: ${error}`)
   }
   finally {
     isTestingChime.value = false
@@ -139,19 +136,16 @@ async function testTTSOnly() {
   lastTestTime.value = new Date()
 
   try {
-    const testMessage = 'This is a test of the medication reminder voice system. Text-to-Speech is working correctly.'
+    const voiceName = selectedVoice.value ? selectedVoice.value.name : 'Default'
+    const testMessage = `This is a test of the medication reminder voice system using ${voiceName}. Text-to-Speech is working correctly.`
     const success = await speak(testMessage, 'high')
 
-    if (success) {
-      useToastMessage('success', 'TTS test completed!')
-    }
-    else {
+    if (!success) {
       useToastMessage('warning', 'TTS is disabled or failed to speak')
     }
   }
   catch (error) {
-    console.error('TTS test failed:', error)
-    useToastMessage('error', 'TTS test failed')
+    useToastMessage('error', `TTS test failed due to an error: ${error}`)
   }
   finally {
     isTestingTTS.value = false
@@ -180,8 +174,7 @@ async function playTestChime() {
     await audio.play()
   }
   catch (error) {
-    console.warn('Test chime failed:', error)
-    throw error
+    useToastMessage('error', `Chime failed to play: ${error}`)
   }
 }
 </script>
