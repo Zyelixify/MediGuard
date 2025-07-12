@@ -19,23 +19,24 @@ const hasInsights = computed(() => {
 <template>
   <Card>
     <template #header>
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2 sm:gap-3">
-          <UIcon name="ic:round-analytics" class="text-primary text-lg sm:text-xl flex-shrink-0" />
-          <h3 class="text-base sm:text-xl font-semibold text-default">
-            Medication Timing Insights
-          </h3>
-        </div>
-        <UButton
-          variant="ghost"
-          color="primary"
-          size="sm"
-          :loading="isLoading"
-          @click="refetch()"
-        >
-          <UIcon name="ic:round-refresh" class="text-lg" />
-        </UButton>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <UIcon name="ic:round-analytics" class="text-primary text-lg sm:text-xl flex-shrink-0" />
+        <h3 class="text-base sm:text-xl font-semibold text-default">
+          Medication Timing Insights
+        </h3>
       </div>
+    </template>
+
+    <template #headerExtra>
+      <UButton
+        size="sm"
+        variant="outline"
+        color="neutral"
+        icon="ic:round-refresh"
+        :loading="isLoading"
+        :disabled="isLoading"
+        @click="refetch()"
+      />
     </template>
 
     <div class="space-y-4">
@@ -49,10 +50,6 @@ const hasInsights = computed(() => {
         <p class="text-muted mb-4">
           Take medications consistently for a few days to see personalized timing insights.
         </p>
-        <UButton variant="outline" color="primary" size="sm" @click="refetch()">
-          <UIcon name="ic:round-refresh" class="mr-1" />
-          Check for New Data
-        </UButton>
       </div>
 
       <div v-else class="space-y-6">

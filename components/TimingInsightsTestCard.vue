@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import type { RouterOutput } from '~/types'
 
 const { $trpc } = useNuxtApp()
 
-const isLoading = ref(false)
 const results = ref<RouterOutput['medicationTimingPreference']['getTimingPreferences'] | null>(null)
 
 type ScenarioKey = 'consistently_late' | 'consistently_early' | 'wildly_overdue'
-
-const scenarios: Record<ScenarioKey, { key: string, name: string, description: string, expected: string, icon: string, color: string }> = {
+const scenarios: Record<ScenarioKey, { key: ScenarioKey, name: string, description: string, expected: string, icon: string, color: string }> = {
   consistently_late: {
     key: 'consistently_late',
     name: 'Consistently Late',
@@ -35,52 +34,41 @@ const scenarios: Record<ScenarioKey, { key: string, name: string, description: s
   }
 }
 
-async function runScenario(scenario: string) {
-  isLoading.value = true
-  results.value = null
+const queryClient = useQueryClient()
 
-  try {
-    // Reset
-    await $trpc.medicationTimingPreference.simulateTimingScenarios.mutate({
-      scenario: 'reset'
-    })
-
-    // Set the required test scenario
-    await $trpc.medicationTimingPreference.simulateTimingScenarios.mutate({
-      scenario: scenario as ScenarioKey
-    })
-
-    // Update the results
-    results.value = await $trpc.medicationTimingPreference.getTimingPreferences.query()
-
+const runScenarioMutation = useMutation({
+  mutationFn: async (scenario: ScenarioKey) => {
+    await $trpc.medicationTimingPreference.simulateTimingScenarios.mutate({ scenario: 'reset' })
+    await $trpc.medicationTimingPreference.simulateTimingScenarios.mutate({ scenario })
+    return await $trpc.medicationTimingPreference.getTimingPreferences.query()
+  },
+  onSuccess: async (data, scenario) => {
+    results.value = data
     useToastMessage('success', `Scenario "${scenario}" completed!`)
-  }
-  catch (error) {
+    await queryClient.invalidateQueries({ queryKey: ['medicationTimingPreference'] })
+  },
+  onError: (error) => {
     console.error('Scenario failed:', error)
     useToastMessage('error', 'Failed to run scenario')
-  }
-  finally {
-    isLoading.value = false
-  }
-}
+  },
+})
 
-async function resetData() {
-  isLoading.value = true
-  try {
+const resetDataMutation = useMutation({
+  mutationFn: async () => {
     await $trpc.medicationTimingPreference.simulateTimingScenarios.mutate({
       scenario: 'reset'
     })
+  },
+  onSuccess: async () => {
     results.value = null
     useToastMessage('success', 'Timing data reset!')
-  }
-  catch (error) {
+    await queryClient.invalidateQueries({ queryKey: ['medicationTimingPreference'] })
+  },
+  onError: (error) => {
     console.error('Reset failed:', error)
     useToastMessage('error', 'Failed to reset data')
-  }
-  finally {
-    isLoading.value = false
-  }
-}
+  },
+})
 </script>
 
 <template>
@@ -102,9 +90,9 @@ async function resetData() {
             variant="outline"
             color="error"
             icon="ic:round-refresh"
-            :loading="isLoading"
-            :disabled="isLoading"
-            @click="resetData"
+            :loading="resetDataMutation.isPending.value"
+            :disabled="resetDataMutation.isPending.value || runScenarioMutation.isPending.value"
+            @click="resetDataMutation.mutate()"
           />
         </UTooltip>
       </div>
@@ -147,10 +135,10 @@ async function resetData() {
               size="sm"
               variant="outline"
               color="primary"
-              :loading="isLoading"
-              :disabled="isLoading"
+              :loading="runScenarioMutation.isPending.value"
+              :disabled="runScenarioMutation.isPending.value || resetDataMutation.isPending.value"
               class="w-full"
-              @click="runScenario(scenario.key)"
+              @click="runScenarioMutation.mutate(scenario.key)"
             >
               <template #leading>
                 <UIcon name="ic:round-play-arrow" />

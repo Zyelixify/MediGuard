@@ -78,10 +78,7 @@ function openMedicationCreationModal() {
     </template>
 
     <ClientOnly>
-      <div v-if="medicationsLoading" class="flex items-center justify-center py-8">
-        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500" />
-        <span class="ml-2 text-sm text-muted">Loading medications...</span>
-      </div>
+      <LoadingSpinner v-if="medicationsLoading" text="Loading medications..." />
 
       <div v-else-if="medications.length === 0" class="flex flex-col items-center justify-center py-8 space-y-2">
         <UIcon name="ic:round-medication" class="text-muted text-4xl" />
@@ -95,9 +92,17 @@ function openMedicationCreationModal() {
       </div>
 
       <template #fallback>
-        <div class="flex items-center justify-center py-8">
-          <UIcon name="ic:round-medication" class="text-muted text-4xl" />
-        </div>
+        <Card class="w-full">
+          <template #header>
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <UIcon name="ic:round-medication" class="text-primary text-lg sm:text-xl flex-shrink-0" />
+              <h2 class="text-base sm:text-xl font-semibold text-default">
+                My Medications
+              </h2>
+            </div>
+          </template>
+          <LoadingSpinner />
+        </Card>
       </template>
     </ClientOnly>
   </Card>
