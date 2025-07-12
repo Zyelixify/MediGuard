@@ -105,22 +105,8 @@ const hasInsights = computed(() => {
                       variant="soft"
                       size="sm"
                     >
-                      {{ getDataQuality(pref).quality }}
+                      Confidence: {{ getDataQuality(pref).quality }}
                     </UBadge>
-                  </div>
-                </div>
-
-                <!-- Timing Concerns -->
-                <div v-if="getTimingConcerns(pref).length > 0" class="mt-3">
-                  <div class="space-y-1">
-                    <div
-                      v-for="concern in getTimingConcerns(pref)"
-                      :key="concern"
-                      class="flex items-start gap-2 text-sm"
-                    >
-                      <UIcon name="ic:round-warning" class="text-orange-500 mt-0.5 flex-shrink-0" />
-                      <span class="text-orange-700 dark:text-orange-300">{{ concern }}</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -133,15 +119,21 @@ const hasInsights = computed(() => {
             </div>
 
             <div v-if="isTimingAdjustmentNeeded(pref)" class="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-md border border-yellow-200 dark:border-yellow-700">
-              <div class="flex items-start gap-2">
-                <UIcon name="ic:round-lightbulb" class="text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                    Timing Suggestion
-                  </p>
-                  <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
-                    {{ getAdjustmentSuggestion(pref) }}
-                  </p>
+              <div>
+                <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                  {{ getAdjustmentSuggestion(pref) }}
+                </p>
+                <div v-if="getTimingConcerns(pref).length > 0" class="mt-3">
+                  <div class="space-y-1">
+                    <div
+                      v-for="concern in getTimingConcerns(pref)"
+                      :key="concern"
+                      class="flex items-start gap-2 text-sm"
+                    >
+                      <UIcon name="ic:round-warning" class="text-orange-500 mt-0.5 flex-shrink-0" />
+                      <span class="text-orange-700 dark:text-orange-300">{{ concern }}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

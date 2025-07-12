@@ -60,7 +60,7 @@ export function getDataQuality(preference: TimingPreference): DataQuality {
     return {
       quality: 'Insufficient',
       message: 'Need more data points for reliable insights',
-      color: 'gray'
+      color: 'error'
     }
   }
 
@@ -68,7 +68,7 @@ export function getDataQuality(preference: TimingPreference): DataQuality {
     return {
       quality: 'Excellent',
       message: 'High confidence in timing patterns',
-      color: 'green'
+      color: 'success'
     }
   }
 
@@ -76,14 +76,14 @@ export function getDataQuality(preference: TimingPreference): DataQuality {
     return {
       quality: 'Good',
       message: 'Reliable timing insights available',
-      color: 'blue'
+      color: 'primary'
     }
   }
 
   return {
     quality: 'Fair',
     message: 'Basic insights available, improving with more data',
-    color: 'yellow'
+    color: 'warning'
   }
 }
 
