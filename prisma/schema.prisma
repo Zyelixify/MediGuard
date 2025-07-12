@@ -18,12 +18,13 @@ model Account {
   password String
   role     String  @default("user")
 
-  events Event[]
+  events Event[] @relation("EventAccounts")
 
   caretakerOf CaretakerRelation[] @relation("CaretakerRelationCaretaker")
   caretakers  CaretakerRelation[] @relation("CaretakerRelationPatient")
 
   medications Medication[]
+  medicationTimingPreferences MedicationTimingPreference[]
 
   createdAt DateTime @default(now())
 }
@@ -66,12 +67,33 @@ model Medication {
 model ScheduledMedication {
   id          String   @id @default(uuid())
   scheduledAt DateTime
+
   taken       Boolean  @default(false)
+  takenAt     DateTime?
 
   medication   Medication @relation(fields: [medicationId], references: [id])
   medicationId String
 
   createdAt DateTime @default(now())
+}
+
+model MedicationTimingPreference {
+  id        String @id @default(uuid())
+  quarter   String
+  
+  preferredTime String
+  
+  totalTaken     Int @default(0)
+  averageDelay   Int @default(0)
+  lastAdjusted   DateTime @default(now())
+  
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([accountId, quarter])
 }
 
 model Event {
@@ -84,8 +106,7 @@ model Event {
 
   resolved Boolean @default(false)
 
-  account   Account @relation(fields: [accountId], references: [id])
-  accountId String
+  accounts Account[] @relation("EventAccounts")
 
   // Optional fields for context
   caretakerRelation CaretakerRelation? @relation(fields: [caretakerRelationId], references: [id])

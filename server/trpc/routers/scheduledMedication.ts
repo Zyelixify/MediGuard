@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { shieldedProcedure } from '../procedures'
 import { createRouter } from '~/server/trpc/trpc'
 import { updateScheduledMedicationTakenSchema } from '~/schemas'
+import { recordMedicationTiming } from '~/server/utils/medicationTiming'
 
 const defaultInclude = {
   medication: {
@@ -43,9 +44,38 @@ export const router = createRouter({
     })
   }),
   updateTaken: shieldedProcedure.input(updateScheduledMedicationTakenSchema).mutation(async ({ input, ctx }) => {
-    return ctx.prisma.scheduledMedication.update({
+    const takenAt = input.takenAt || new Date()
+
+    // First get the current medication info
+    const currentMedication = await ctx.prisma.scheduledMedication.findUnique({
       where: { id: input.id },
-      data: { taken: input.taken },
+      include: {
+        medication: true
+      }
     })
+
+    if (!currentMedication) {
+      throw new Error('Scheduled medication not found')
+    }
+
+    const updatedMedication = await ctx.prisma.scheduledMedication.update({
+      where: { id: input.id },
+      data: {
+        taken: input.taken,
+        takenAt: input.taken ? takenAt : null,
+      }
+    })
+
+    // If medication is being marked as taken, record timing for learning
+    if (input.taken && currentMedication.medication) {
+      await recordMedicationTiming(
+        ctx.prisma,
+        ctx.session!.user.id,
+        currentMedication.scheduledAt,
+        takenAt
+      )
+    }
+
+    return updatedMedication
   }),
 })

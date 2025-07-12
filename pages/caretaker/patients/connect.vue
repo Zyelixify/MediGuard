@@ -53,9 +53,9 @@ const createRelation = useMutation({
   onError: () => {
     hasError.value = true
   },
-  onSuccess: () => {
+  onSuccess: async () => {
     useToastMessage('success', 'Patient connected successfully')
-    setTimeout(() => {
+    await setTimeout(() => {
       navigateTo('/caretaker/patients')
     }, 1000) // Brief delay to show success message
   },

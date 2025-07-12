@@ -17,12 +17,21 @@ const {
 } = useDateFormatting()
 
 const markAsTaken = useMutation({
-  mutationFn: $trpc.scheduledMedication.updateTaken.mutate,
+  mutationFn: ({ id, taken, takenAt }: { id: string, taken: boolean, takenAt?: Date }) =>
+    $trpc.scheduledMedication.updateTaken.mutate({
+      id,
+      taken,
+      takenAt
+    }),
   mutationKey: ['scheduledMedication', 'updateTaken'],
-  onSuccess: () => {
+  onSuccess: async () => {
     useToastMessage('success', 'Medication marked as taken')
-    queryClient.invalidateQueries({ queryKey: ['scheduledMedication'] })
-    queryClient.invalidateQueries({ queryKey: ['medication'] })
+
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['scheduledMedication'] }),
+      queryClient.invalidateQueries({ queryKey: ['medication'] }),
+      queryClient.invalidateQueries({ queryKey: ['timingPreferences'] })
+    ])
   },
   onError: (error) => {
     console.error('Failed to mark medication as taken:', error)
@@ -31,7 +40,11 @@ const markAsTaken = useMutation({
 })
 
 function handleMarkAsTaken(medicationId: string) {
-  markAsTaken.mutate({ id: medicationId, taken: true })
+  markAsTaken.mutate({
+    id: medicationId,
+    taken: true,
+    takenAt: new Date()
+  })
 }
 
 function formatFrequency(frequency: string): string {

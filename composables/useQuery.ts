@@ -44,6 +44,12 @@ export default () => {
         refetchInterval: 60000, // Refetch every minute to keep data fresh
       }),
     },
+    medicationTimingInsights: {
+      preferences: () => useQuery({
+        queryKey: ['medicationTimingPreference', 'preferences'],
+        queryFn: () => $trpc.medicationTimingPreference.getTimingPreferences.query(),
+      }),
+    },
     caretakerRelation: {
       all: (queryArgs: MaybeRef<Prisma.CaretakerRelationFindManyArgs>) => useQuery({
         queryKey: ['caretakerRelation', 'all', queryArgs],

@@ -53,10 +53,14 @@ watch(() => props.patientId, (newPatientId) => {
 const createMedication = useMutation({
   mutationFn: $trpc.medication.createMedication.mutate,
   mutationKey: ['medication', 'create'],
-  onSuccess: () => {
+  onSuccess: async () => {
     useToastMessage('success', 'Medication created successfully')
     resetMedicationForm()
-    queryClient.invalidateQueries({ queryKey: ['medication'] })
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['medication', 'getMany'] }),
+      queryClient.invalidateQueries({ queryKey: ['medication', 'getById', props.patientId] }),
+      queryClient.invalidateQueries({ queryKey: ['event'] })
+    ])
     emit('close')
   },
   onError: (error) => {

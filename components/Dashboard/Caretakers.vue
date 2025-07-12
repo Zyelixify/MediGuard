@@ -87,9 +87,12 @@ const queryClient = useQueryClient()
 const deleteRelation = useMutation({
   mutationFn: $trpc.caretakerRelation.delete.mutate,
   mutationKey: ['caretakerRelation', 'delete'],
-  onSuccess: () => {
+  onSuccess: async () => {
     useToastMessage('success', 'Caretaker removed successfully')
-    queryClient.invalidateQueries({ queryKey: ['caretakerRelation', 'all'] })
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['caretakerRelation', 'all'] }),
+      queryClient.invalidateQueries({ queryKey: ['event'] })
+    ])
   },
   onError: (error) => {
     console.error('Failed to remove caretaker:', error)
@@ -100,9 +103,12 @@ const deleteRelation = useMutation({
 const confirmRelation = useMutation({
   mutationFn: $trpc.caretakerRelation.confirm.mutate,
   mutationKey: ['caretakerRelation', 'confirm'],
-  onSuccess: () => {
+  onSuccess: async () => {
     useToastMessage('success', 'Caretaker confirmed successfully')
-    queryClient.invalidateQueries({ queryKey: ['caretakerRelation', 'all'] })
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['caretakerRelation', 'all'] }),
+      queryClient.invalidateQueries({ queryKey: ['event'] })
+    ])
   },
   onError: (error) => {
     console.error('Failed to confirm caretaker:', error)

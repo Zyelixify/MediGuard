@@ -42,15 +42,22 @@ const nextDoseInfo = computed(() => {
   }
 })
 
+// Single mutation that handles both marking as taken AND recording timing preferences
 const markAsTakenMutation = useMutation({
-  mutationFn: (id: string) => $trpc.scheduledMedication.updateTaken.mutate({
-    id,
-    taken: true,
-  }),
-  onSuccess: () => {
+  mutationFn: ({ id, taken, takenAt }: { id: string, taken: boolean, takenAt?: Date }) =>
+    $trpc.scheduledMedication.updateTaken.mutate({
+      id,
+      taken,
+      takenAt
+    }),
+  onSuccess: async () => {
     useToastMessage('success', 'Dose marked as taken!')
-    queryClient.invalidateQueries({ queryKey: ['scheduledMedication'] })
-    queryClient.invalidateQueries({ queryKey: ['medication'] })
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['scheduledMedication'] }),
+      queryClient.invalidateQueries({ queryKey: ['medication'] }),
+      queryClient.invalidateQueries({ queryKey: ['timingPreferences'] })
+    ])
+
     refetch()
   },
   onError: (error) => {
@@ -63,7 +70,11 @@ function markAsTaken() {
   if (!nextDose.value) {
     return
   }
-  markAsTakenMutation.mutate(nextDose.value.id)
+  markAsTakenMutation.mutate({
+    id: nextDose.value.id,
+    taken: true,
+    takenAt: new Date()
+  })
 }
 </script>
 

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import TimingInsightsTestCard from '~/components/TimingInsightsTestCard.vue'
+
 definePageMeta({ layout: 'simple' })
 </script>
 
@@ -29,8 +31,12 @@ definePageMeta({ layout: 'simple' })
 
       <DashboardCaretakers />
 
+      <MedicationTimingInsights />
+
       <DevOnly>
         <NotificationTestCard />
+
+        <TimingInsightsTestCard />
       </DevOnly>
     </div>
   </Page>

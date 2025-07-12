@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { EventGetMany } from '~/types'
+
 interface Props {
-  event: any
+  event: EventGetMany
   showFullDateTime?: boolean
   variant?: 'card' | 'modal'
 }

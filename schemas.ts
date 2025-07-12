@@ -14,7 +14,7 @@ export const createAccountSchema = z.object({
 })
 export const updateAccountSchema = z.any(z.object({}))
 
-export const frequencySchema = z.enum(['Once a day', 'Twice a day', 'Three times a day', 'Four times a day', 'Once a week', 'Twice a week', 'Three times a week', 'Four times a week', 'Once a month'])
+export const frequencySchema = z.enum(['Once a day', 'Twice a day', 'Three times a day', 'Four times a day', 'Once a week', 'Twice a week', 'Three times a week'])
 
 // Medication
 const baseMedicationSchema = z.object({
@@ -46,7 +46,10 @@ export const updateMedicationSchema = baseMedicationSchema.merge(idObjectSchema)
 })
 
 // Scheduled Medication
-export const updateScheduledMedicationTakenSchema = idObjectSchema.merge(z.object({ taken: z.boolean() }))
+export const updateScheduledMedicationTakenSchema = idObjectSchema.merge(z.object({
+  taken: z.boolean(),
+  takenAt: z.date().optional()
+}))
 
 // Caretaker Relation
 export const createCaretakerRelationSchema = z.object({

@@ -3,7 +3,7 @@ const { data: session } = useAuth()
 
 const { event } = useQuery()
 const { data: eventsData, isLoading, isFetching, refetch } = event.all({
-  where: { accountId: session.value?.user.id },
+  where: { accounts: { some: { id: session.value?.user.id } } },
   orderBy: { timestamp: 'desc' }
 })
 const allEvents = computed(() => eventsData.value || [])

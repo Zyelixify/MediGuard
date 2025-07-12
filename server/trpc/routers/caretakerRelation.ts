@@ -44,7 +44,12 @@ export const router = createRouter({
         type: 'CaretakerRelationCreated',
         message: `${relation.caretaker.name} has requested to be your caretaker.`,
         key: `CaretakerRelationCreated:${relation.id},${relation.caretaker.id},${relation.patientId},${new Date().toISOString()}`,
-        accountId: relation.patientId,
+        accounts: {
+          connect: [
+            { id: relation.patientId },
+            { id: relation.caretaker.id }
+          ]
+        },
         caretakerRelationId: relation.id,
       },
     })
@@ -68,7 +73,12 @@ export const router = createRouter({
         type: 'CaretakerRelationConfirmed',
         message: `You have confirmed ${relation.caretaker.name} to be your caretaker.`,
         key: `CaretakerRelationConfirmed:${relation.id},${relation.caretaker.id},${relation.patientId},${new Date().toISOString()}`,
-        accountId: relation.patientId,
+        accounts: {
+          connect: [
+            { id: relation.patientId },
+            { id: relation.caretaker.id }
+          ]
+        },
         caretakerRelationId: relation.id,
       },
     })
