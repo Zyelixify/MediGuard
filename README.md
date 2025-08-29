@@ -2,6 +2,10 @@
   Mediguard
 </h1>
 
+<p align="center">
+<img width="1136" height="1157" alt="image" src="https://github.com/user-attachments/assets/1b0fc878-65dd-49f9-9858-d91db31ffc4e" />
+</p>
+
 ## Technologies
 Project was bootstrapped using [sidebase](https://sidebase.io).
 - TypeScript
