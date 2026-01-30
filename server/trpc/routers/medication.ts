@@ -4,6 +4,7 @@ import { createRouter } from '~/server/trpc/trpc'
 import { createMedicationSchema } from '~/schemas'
 import { getDefaultScheduleForFrequency, getPersonalizedTimesForFrequency } from '~/server/utils/medicationTiming'
 import { calculateScheduledDates } from '~/utils/scheduling'
+import type { ExtendedPrismaClient } from '~/server/middleware/0.prisma'
 import type { MedicationCreationFormData } from '~/types'
 
 const defaultInclude = {
@@ -55,7 +56,7 @@ export const router = createRouter({
   }),
 })
 
-async function getScheduledDatesFromMedication(input: MedicationCreationFormData, prisma: any, userId?: string) {
+async function getScheduledDatesFromMedication(input: MedicationCreationFormData, prisma: ExtendedPrismaClient, userId?: string) {
   const startDate = new Date(input.startDate)
   const endDate = new Date(input.endDate)
 
