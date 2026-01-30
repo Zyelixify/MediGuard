@@ -16,6 +16,11 @@ export function calculateScheduledDates(
   }
 
   if (frequency.includes('day')) {
+    // Validate that dailyTimes is not empty for daily medications
+    if (!dailyTimes || dailyTimes.length === 0) {
+      throw new Error('dailyTimes array cannot be empty for daily medications')
+    }
+
     let currentDate = new Date(start)
 
     while (currentDate <= end) {

@@ -1,9 +1,10 @@
 import { resolve } from 'node:path'
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
+import type { PluginOption } from 'vite'
 
 export default defineConfig({
-  plugins: [vue() as any],
+  plugins: [vue() as PluginOption],
   test: {
     environment: 'happy-dom',
     globals: true,
