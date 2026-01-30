@@ -1,9 +1,9 @@
 import { z } from 'zod'
-import { addDays, addMonths, setHours, setMilliseconds, setMinutes, setSeconds } from 'date-fns'
 import { shieldedProcedure } from '../procedures'
 import { createRouter } from '~/server/trpc/trpc'
 import { createMedicationSchema } from '~/schemas'
 import { getDefaultScheduleForFrequency, getPersonalizedTimesForFrequency } from '~/server/utils/medicationTiming'
+import { calculateScheduledDates } from '~/utils/scheduling'
 import type { MedicationCreationFormData } from '~/types'
 
 const defaultInclude = {
@@ -58,7 +58,6 @@ export const router = createRouter({
 async function getScheduledDatesFromMedication(input: MedicationCreationFormData, prisma: any, userId?: string) {
   const startDate = new Date(input.startDate)
   const endDate = new Date(input.endDate)
-  const scheduledDates: Date[] = []
 
   // Get personalized times for this frequency if user is provided
   let dailyTimes: string[]
@@ -71,47 +70,5 @@ async function getScheduledDatesFromMedication(input: MedicationCreationFormData
     dailyTimes = getDefaultScheduleForFrequency(input.frequency)
   }
 
-  const createScheduledTime = (date: Date, timeString: string) => {
-    const [hours, minutes] = timeString.split(':').map(Number)
-    return setMilliseconds(setSeconds(setMinutes(setHours(date, hours), minutes), 0), 0)
-  }
-
-  if (input.frequency.includes('day')) {
-    let currentDate = new Date(startDate)
-
-    while (currentDate <= endDate) {
-      for (const time of dailyTimes) {
-        const scheduledDate = createScheduledTime(currentDate, time)
-        scheduledDates.push(scheduledDate)
-      }
-      currentDate = addDays(currentDate, 1)
-    }
-  }
-  else if (input.frequency.includes('week')) {
-    const frequencyConfig = {
-      'Once a week': 7,
-      'Twice a week': 3,
-      'Three times a week': 2,
-    }
-
-    const dayInterval = frequencyConfig[input.frequency as keyof typeof frequencyConfig] || 7
-    let currentDate = new Date(startDate)
-
-    while (currentDate <= endDate) {
-      const scheduledDate = createScheduledTime(currentDate, dailyTimes[0] || '09:00')
-      scheduledDates.push(scheduledDate)
-      currentDate = addDays(currentDate, dayInterval)
-    }
-  }
-  else if (input.frequency.includes('month')) {
-    let currentDate = new Date(startDate)
-
-    while (currentDate <= endDate) {
-      const scheduledDate = createScheduledTime(currentDate, dailyTimes[0] || '09:00')
-      scheduledDates.push(scheduledDate)
-      currentDate = addMonths(currentDate, 1)
-    }
-  }
-
-  return scheduledDates
+  return calculateScheduledDates(startDate, endDate, input.frequency, dailyTimes)
 }

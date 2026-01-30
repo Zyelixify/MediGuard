@@ -23,7 +23,7 @@ model Account {
   caretakerOf CaretakerRelation[] @relation("CaretakerRelationCaretaker")
   caretakers  CaretakerRelation[] @relation("CaretakerRelationPatient")
 
-  medications Medication[]
+  medications                 Medication[]
   medicationTimingPreferences MedicationTimingPreference[]
 
   createdAt DateTime @default(now())
@@ -39,7 +39,7 @@ model CaretakerRelation {
   caretaker   Account @relation("CaretakerRelationCaretaker", fields: [caretakerId], references: [id])
   caretakerId String
 
-  events Event[] 
+  events Event[]
 
   createdAt DateTime @default(now())
 
@@ -68,8 +68,8 @@ model ScheduledMedication {
   id          String   @id @default(uuid())
   scheduledAt DateTime
 
-  taken       Boolean  @default(false)
-  takenAt     DateTime?
+  taken   Boolean   @default(false)
+  takenAt DateTime?
 
   medication   Medication @relation(fields: [medicationId], references: [id])
   medicationId String
@@ -78,15 +78,15 @@ model ScheduledMedication {
 }
 
 model MedicationTimingPreference {
-  id        String @id @default(uuid())
-  quarter   String
-  
+  id      String @id @default(uuid())
+  quarter String
+
   preferredTime String
-  
-  totalTaken     Int @default(0)
-  averageDelay   Int @default(0)
-  lastAdjusted   DateTime @default(now())
-  
+
+  totalTaken   Int      @default(0)
+  averageDelay Int      @default(0)
+  lastAdjusted DateTime @default(now())
+
   account   Account @relation(fields: [accountId], references: [id])
   accountId String
 
@@ -101,7 +101,7 @@ model Event {
   type    String
   message String
 
-  key       String @unique
+  key       String   @unique
   timestamp DateTime @default(now())
 
   resolved Boolean @default(false)
@@ -109,6 +109,6 @@ model Event {
   accounts Account[] @relation("EventAccounts")
 
   // Optional fields for context
-  caretakerRelation CaretakerRelation? @relation(fields: [caretakerRelationId], references: [id])
+  caretakerRelation   CaretakerRelation? @relation(fields: [caretakerRelationId], references: [id])
   caretakerRelationId String?
 }
