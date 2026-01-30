@@ -19,6 +19,9 @@ jobs:
     name: Lint and Formatting Checks
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      DATABASE_PRISMA_URL: "file:./dev.db"
+      DATABASE_URL_NON_POOLING: "file:./dev.db"
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -78,6 +81,9 @@ jobs:
     needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      DATABASE_PRISMA_URL: "file:./dev.db"
+      DATABASE_URL_NON_POOLING: "file:./dev.db"
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -107,6 +113,10 @@ jobs:
     needs: [quality, test]
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      DATABASE_PRISMA_URL: "file:./dev.db"
+      DATABASE_URL_NON_POOLING: "file:./dev.db"
+      NUXT_AUTH_SECRET: "ci-dummy-secret"
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -130,6 +140,4 @@ jobs:
 
       - name: Build Project
         run: pnpm build:ci
-        env:
-          DATABASE_URL: "file:./dev.db"
-          NUXT_AUTH_SECRET: "ci-dummy-secret"
+
