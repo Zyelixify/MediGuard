@@ -64,5 +64,10 @@ describe('notificationLogic', () => {
       expect(formatNotificationBody('dose', 'Meds', '10mg', '10:00 AM'))
         .toContain('Time to take Meds (10mg) - scheduled for 10:00 AM')
     })
+
+    it('should format overdue body', () => {
+      expect(formatNotificationBody('overdue', 'Aspirin', '500mg', '2 hours'))
+        .toContain('Aspirin (500mg) is overdue by 2 hours')
+    })
   })
 })
