@@ -80,7 +80,7 @@ function getUpcomingDoses(scheduledMedications: MedicationGetMany['scheduledMedi
 const sortedMedications = computed(() => {
   return props.medications.map(medication => ({
     ...medication,
-    scheduledMedications: medication.scheduledMedications?.sort((a, b) => {
+    scheduledMedications: medication.scheduledMedications.sort((a, b) => {
       // Sort by date ascending (earliest first)
       return new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
     })
@@ -117,11 +117,11 @@ const sortedMedications = computed(() => {
               </h3>
             </div>
             <UBadge
-              :color="medication.scheduledMedications?.some(sm => !sm.taken) ? 'warning' : 'success'"
+              :color="medication.scheduledMedications?.some((sm: any) => !sm.taken) ? 'warning' : 'success'"
               variant="soft"
               size="sm"
             >
-              {{ medication.scheduledMedications?.some(sm => !sm.taken) ? 'Ongoing' : 'Complete' }}
+              {{ medication.scheduledMedications?.some((sm: any) => !sm.taken) ? 'Ongoing' : 'Complete' }}
             </UBadge>
           </div>
 
@@ -219,8 +219,8 @@ const sortedMedications = computed(() => {
                   </div>
                 </div>
                 <UModal>
-                  <div v-if="medication.scheduledMedications.filter(sm => !sm.taken).length > 4" class="text-xs text-center cursor-pointer hover:underline text-primary-300">
-                    +{{ medication.scheduledMedications.filter(sm => !sm.taken).length - 4 }} more
+                  <div v-if="medication.scheduledMedications.filter((sm: any) => !sm.taken).length > 4" class="text-xs text-center cursor-pointer hover:underline text-primary-300">
+                    +{{ medication.scheduledMedications.filter((sm: any) => !sm.taken).length - 4 }} more
                   </div>
                   <template #content>
                     <div class="p-2 max-h-60 overflow-y-auto custom-scrollbar m-2">
@@ -229,7 +229,7 @@ const sortedMedications = computed(() => {
                       </h4>
                       <div class="space-y-1">
                         <div
-                          v-for="scheduledMed in medication.scheduledMedications.filter(sm => !sm.taken)"
+                          v-for="scheduledMed in medication.scheduledMedications.filter((sm: any) => !sm.taken)"
                           :key="scheduledMed.id"
                           class="flex items-center justify-between text-xs"
                         >
