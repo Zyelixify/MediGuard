@@ -54,10 +54,10 @@ export default function useNotifications() {
       audioElement.value.preload = 'auto'
       audioElement.value.volume = 0.8
 
-      audioElement.value.onerror = () => {
+      audioElement.value.addEventListener('error', () => {
         console.warn('Notification chime audio failed to load')
         isChimeEnabled.value = false
-      }
+      })
     }
   }
 
@@ -118,20 +118,20 @@ export default function useNotifications() {
         utterance.pitch = 1.0
         utterance.volume = 0.8
 
-        utterance.onstart = () => {
+        utterance.addEventListener('start', () => {
           isSpeaking.value = true
-        }
+        })
 
-        utterance.onend = () => {
+        utterance.addEventListener('end', () => {
           isSpeaking.value = false
           resolve(true)
-        }
+        })
 
-        utterance.onerror = (error) => {
+        utterance.addEventListener('error', (error) => {
           console.warn('TTS error:', error)
           isSpeaking.value = false
           resolve(false)
-        }
+        })
 
         if (ttsInstance.value) {
           ttsInstance.value.speak(utterance)
@@ -172,8 +172,12 @@ export default function useNotifications() {
       document.addEventListener('visibilitychange', handleVisibilityChange)
 
       // Also track focus/blur events
-      window.addEventListener('focus', () => { isAppVisible.value = true })
-      window.addEventListener('blur', () => { isAppVisible.value = false })
+      window.addEventListener('focus', () => {
+        isAppVisible.value = true
+      })
+      window.addEventListener('blur', () => {
+        isAppVisible.value = false
+      })
     }
   }
 
