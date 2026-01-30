@@ -1,3 +1,5 @@
+import { calculateOverdueTime, formatNotificationBody, formatNotificationTitle, generateTTSMessage, shouldTriggerNotification } from '~/utils/notificationLogic'
+
 export type NotificationPermission = 'default' | 'granted' | 'denied'
 
 export interface NotificationOptions {
@@ -54,10 +56,10 @@ export default function useNotifications() {
       audioElement.value.preload = 'auto'
       audioElement.value.volume = 0.8
 
-      audioElement.value.onerror = () => {
+      audioElement.value.addEventListener('error', () => {
         console.warn('Notification chime audio failed to load')
         isChimeEnabled.value = false
-      }
+      })
     }
   }
 
@@ -118,20 +120,20 @@ export default function useNotifications() {
         utterance.pitch = 1.0
         utterance.volume = 0.8
 
-        utterance.onstart = () => {
+        utterance.addEventListener('start', () => {
           isSpeaking.value = true
-        }
+        })
 
-        utterance.onend = () => {
+        utterance.addEventListener('end', () => {
           isSpeaking.value = false
           resolve(true)
-        }
+        })
 
-        utterance.onerror = (error) => {
+        utterance.addEventListener('error', (error) => {
           console.warn('TTS error:', error)
           isSpeaking.value = false
           resolve(false)
-        }
+        })
 
         if (ttsInstance.value) {
           ttsInstance.value.speak(utterance)
@@ -152,16 +154,6 @@ export default function useNotifications() {
     }
   }
 
-  // Generate TTS message for notifications
-  const generateTTSMessage = (type: 'dose' | 'overdue', medicationName: string, dosage?: string, overdueTime?: string): string => {
-    if (type === 'dose') {
-      return `Medication reminder: It's time to take your ${medicationName}${dosage ? ` ${dosage}` : ''}.`
-    }
-    else {
-      return `Overdue medication alert: Your ${medicationName}${dosage ? ` ${dosage}` : ''} is overdue${overdueTime ? ` by ${overdueTime}` : ''}.`
-    }
-  }
-
   // Setup app visibility detection
   const setupVisibilityDetection = () => {
     if (typeof window !== 'undefined') {
@@ -172,8 +164,12 @@ export default function useNotifications() {
       document.addEventListener('visibilitychange', handleVisibilityChange)
 
       // Also track focus/blur events
-      window.addEventListener('focus', () => { isAppVisible.value = true })
-      window.addEventListener('blur', () => { isAppVisible.value = false })
+      window.addEventListener('focus', () => {
+        isAppVisible.value = true
+      })
+      window.addEventListener('blur', () => {
+        isAppVisible.value = false
+      })
     }
   }
 
@@ -284,18 +280,7 @@ export default function useNotifications() {
       return ''
     }
 
-    const now = new Date()
-    const scheduledTime = new Date(nextDose.value.scheduledAt)
-    const diffMs = now.getTime() - scheduledTime.getTime()
-    const diffMinutes = Math.floor(diffMs / (1000 * 60))
-
-    if (diffMinutes < 60) {
-      return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''}`
-    }
-    else {
-      const diffHours = Math.floor(diffMinutes / 60)
-      return `${diffHours} hour${diffHours !== 1 ? 's' : ''}`
-    }
+    return calculateOverdueTime(nextDose.value.scheduledAt)
   })
 
   // Check if we should notify for the current dose
@@ -304,12 +289,7 @@ export default function useNotifications() {
       return false
     }
 
-    const now = new Date()
-    const scheduledTime = new Date(nextDose.value.scheduledAt)
-    const timeDiff = scheduledTime.getTime() - now.getTime()
-
-    // Notify if dose time has arrived (within 1 minute tolerance)
-    return timeDiff <= 60000 && timeDiff >= 0
+    return shouldTriggerNotification(nextDose.value.scheduledAt)
   })
 
   // Show a system notification (Service Worker or direct)
@@ -400,8 +380,8 @@ export default function useNotifications() {
     }).format(scheduledTime)
 
     const notification = await showNotification({
-      title: '💊 Medication Reminder',
-      body: `Time to take ${medicationName} (${dosage}) - scheduled for ${timeStr}`,
+      title: formatNotificationTitle('dose'),
+      body: formatNotificationBody('dose', medicationName, dosage, timeStr),
       icon: '/favicon.ico',
       tag: `medication-${medicationName}-${scheduledTime.getTime()}`,
       requireInteraction: true
@@ -419,8 +399,8 @@ export default function useNotifications() {
   // Show overdue medication notification
   const showOverdueReminder = async (medicationName: string, dosage: string, overdueTime: string) => {
     const notification = await showNotification({
-      title: '🚨 Overdue Medication',
-      body: `${medicationName} (${dosage}) is overdue by ${overdueTime}`,
+      title: formatNotificationTitle('overdue'),
+      body: formatNotificationBody('overdue', medicationName, dosage, overdueTime),
       icon: '/favicon.ico',
       tag: `overdue-${medicationName}`,
       requireInteraction: true

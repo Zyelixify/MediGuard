@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ScheduledMedicationGetMany } from '~/types'
+
 const { data: session } = useAuth()
 
 const { scheduledMedication } = useQuery()
@@ -37,7 +39,7 @@ const severity = computed(() => {
     return 'none'
   }
 
-  const recentMissed = missedDoses.value.filter((dose) => {
+  const recentMissed = missedDoses.value.filter((dose: ScheduledMedicationGetMany) => {
     const hoursSinceScheduled = (new Date().getTime() - new Date(dose.scheduledAt).getTime()) / (1000 * 60 * 60)
     return hoursSinceScheduled <= 24 // Within last 24 hours
   })

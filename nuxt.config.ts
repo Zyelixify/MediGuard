@@ -32,6 +32,7 @@ export default defineNuxtConfig({
     shim: false
   },
   auth: {
+    baseURL: `https://${process.env.VERCEL_URL ?? process.env.VERCEL_BRANCH_URL ?? 'localhost:3000'}/api/auth`,
     provider: {
       type: 'authjs',
     },

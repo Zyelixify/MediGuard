@@ -51,5 +51,5 @@ Afterwards, just wait while the devcontainer is built and the dependencies are i
 
 For testing on mobile, a QR code will be generated in the terminal that you can scan with your mobile device to access the application. It will be shown after Nuxt has successfully started.
 
-> [!IMPORTANT]  
-> New dependencies are loaded as needed in the development server. Example, when first signing up, new dependencies will be loaded and listed in the terminal. Whenever this happens, it will take a bit longer to process actions while the new dependencies are loaded. 
+> [!IMPORTANT]
+> New dependencies are loaded as needed in the development server. Example, when first signing up, new dependencies will be loaded and listed in the terminal. Whenever this happens, it will take a bit longer to process actions while the new dependencies are loaded.

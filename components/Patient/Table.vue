@@ -18,7 +18,7 @@ const { $trpc } = useNuxtApp()
 const queryClient = useQueryClient()
 
 const deleteRelation = useMutation({
-  mutationFn: $trpc.caretakerRelation.delete.mutate,
+  mutationFn: (input: { id: string }) => $trpc.caretakerRelation.delete.mutate(input),
   mutationKey: ['caretakerRelation', 'delete'],
   onSuccess: async () => {
     useToastMessage('success', 'Patient removed successfully')
