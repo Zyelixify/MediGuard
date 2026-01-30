@@ -46,9 +46,9 @@ describe('notificationLogic', () => {
       expect(shouldTriggerNotification(scheduled, now)).toBe(true)
     })
 
-    it('should return true if within tolerance (past notification time)', () => {
+    it('should return true if within tolerance before scheduled time', () => {
       const scheduled = new Date('2026-01-30T10:00:00')
-      const nowBefore = new Date('2026-01-30T09:59:30') // 30s before
+      const nowBefore = new Date('2026-01-30T09:59:30') // 30s before, within tolerance window
       expect(shouldTriggerNotification(scheduled, nowBefore)).toBe(true)
     })
 
