@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  formatTimingPreference,
   getAdjustmentSuggestion,
   getDataQuality,
+  getTimingConcerns,
+  getTimingSummary,
   isTimingAdjustmentNeeded,
 } from '~/utils/timingAnalysis'
 import {
@@ -150,6 +153,202 @@ describe('timingAnalysis', () => {
       const preference: Partial<TimingPreference> = { totalTaken: 10 }
       const quality = getDataQuality(preference as TimingPreference)
       expect(quality.quality).toBe('Excellent')
+    })
+  })
+
+  describe('formatTimingPreference', () => {
+    it('should format preference with quarter label and delay text for late timing', () => {
+      const preference: TimingPreference = {
+        id: '1',
+        accountId: 'user1',
+        quarter: 'morning',
+        preferredTime: '08:00',
+        totalTaken: 10,
+        averageDelay: 15
+      }
+      const formatted = formatTimingPreference(preference)
+      expect(formatted.quarterLabel).toBe('Morning (6 AM - 12 PM)')
+      expect(formatted.delayText).toBe('Usually 15 min late')
+    })
+
+    it('should format preference with early delay text', () => {
+      const preference: TimingPreference = {
+        id: '2',
+        accountId: 'user1',
+        quarter: 'evening',
+        preferredTime: '18:00',
+        totalTaken: 5,
+        averageDelay: -10
+      }
+      const formatted = formatTimingPreference(preference)
+      expect(formatted.quarterLabel).toBe('Evening (6 PM - 12 AM)')
+      expect(formatted.delayText).toBe('Usually 10 min early')
+    })
+
+    it('should format preference with on-time text', () => {
+      const preference: TimingPreference = {
+        id: '3',
+        accountId: 'user1',
+        quarter: 'afternoon',
+        preferredTime: '14:00',
+        totalTaken: 8,
+        averageDelay: 0
+      }
+      const formatted = formatTimingPreference(preference)
+      expect(formatted.quarterLabel).toBe('Afternoon (12 PM - 6 PM)')
+      expect(formatted.delayText).toBe('Usually on time')
+    })
+  })
+
+  describe('getTimingConcerns', () => {
+    it('should return concerns for large delays', () => {
+      const preference: TimingPreference = {
+        id: '1',
+        accountId: 'user1',
+        quarter: 'morning',
+        preferredTime: '08:00',
+        totalTaken: 10,
+        averageDelay: 90
+      }
+      const concerns = getTimingConcerns(preference)
+      expect(concerns).toContain('Consistently off schedule by over 1 hour')
+      expect(concerns).toContain('Frequently taking medications late')
+    })
+
+    it('should return concerns for moderate late timing', () => {
+      const preference: TimingPreference = {
+        id: '2',
+        accountId: 'user1',
+        quarter: 'evening',
+        preferredTime: '18:00',
+        totalTaken: 5,
+        averageDelay: 45
+      }
+      const concerns = getTimingConcerns(preference)
+      expect(concerns).toContain('Frequently taking medications late')
+      expect(concerns).not.toContain('Consistently off schedule by over 1 hour')
+    })
+
+    it('should return concerns for very early timing', () => {
+      const preference: TimingPreference = {
+        id: '3',
+        accountId: 'user1',
+        quarter: 'morning',
+        preferredTime: '08:00',
+        totalTaken: 8,
+        averageDelay: -40
+      }
+      const concerns = getTimingConcerns(preference)
+      expect(concerns).toContain('Often taking medications very early')
+    })
+
+    it('should return no concerns for good timing', () => {
+      const preference: TimingPreference = {
+        id: '4',
+        accountId: 'user1',
+        quarter: 'afternoon',
+        preferredTime: '14:00',
+        totalTaken: 10,
+        averageDelay: 10
+      }
+      const concerns = getTimingConcerns(preference)
+      expect(concerns).toHaveLength(0)
+    })
+  })
+
+  describe('getTimingSummary', () => {
+    it('should return no data summary for empty preferences', () => {
+      const summary = getTimingSummary([])
+      expect(summary.totalDataPoints).toBe(0)
+      expect(summary.averageAccuracy).toBe(0)
+      expect(summary.mostProblematicQuarter).toBeNull()
+      expect(summary.overallQuality).toBe('No data')
+    })
+
+    it('should calculate summary for excellent quality data', () => {
+      const preferences: TimingPreference[] = [
+        {
+          id: '1',
+          accountId: 'user1',
+          quarter: 'morning',
+          preferredTime: '08:00',
+          totalTaken: 15,
+          averageDelay: 5
+        },
+        {
+          id: '2',
+          accountId: 'user1',
+          quarter: 'evening',
+          preferredTime: '20:00',
+          totalTaken: 15,
+          averageDelay: 10
+        }
+      ]
+      const summary = getTimingSummary(preferences)
+      expect(summary.totalDataPoints).toBe(30)
+      expect(summary.averageAccuracy).toBe(8) // (5 + 10) / 2 rounded
+      expect(summary.mostProblematicQuarter).toBe('Evening (6 PM - 12 AM)')
+      expect(summary.overallQuality).toBe('Excellent')
+    })
+
+    it('should calculate summary for good quality data', () => {
+      const preferences: TimingPreference[] = [
+        {
+          id: '1',
+          accountId: 'user1',
+          quarter: 'morning',
+          preferredTime: '08:00',
+          totalTaken: 8,
+          averageDelay: 20
+        },
+        {
+          id: '2',
+          accountId: 'user1',
+          quarter: 'afternoon',
+          preferredTime: '14:00',
+          totalTaken: 7,
+          averageDelay: 25
+        }
+      ]
+      const summary = getTimingSummary(preferences)
+      expect(summary.totalDataPoints).toBe(15)
+      expect(summary.averageAccuracy).toBe(23) // (20 + 25) / 2 rounded
+      expect(summary.mostProblematicQuarter).toBe('Afternoon (12 PM - 6 PM)')
+      expect(summary.overallQuality).toBe('Good')
+    })
+
+    it('should calculate summary for fair quality data', () => {
+      const preferences: TimingPreference[] = [
+        {
+          id: '1',
+          accountId: 'user1',
+          quarter: 'night',
+          preferredTime: '02:00',
+          totalTaken: 5,
+          averageDelay: 45
+        }
+      ]
+      const summary = getTimingSummary(preferences)
+      expect(summary.totalDataPoints).toBe(5)
+      expect(summary.averageAccuracy).toBe(45)
+      expect(summary.mostProblematicQuarter).toBe('Night (12 AM - 6 AM)')
+      expect(summary.overallQuality).toBe('Fair')
+    })
+
+    it('should calculate summary for poor quality data', () => {
+      const preferences: TimingPreference[] = [
+        {
+          id: '1',
+          accountId: 'user1',
+          quarter: 'morning',
+          preferredTime: '08:00',
+          totalTaken: 2,
+          averageDelay: 60
+        }
+      ]
+      const summary = getTimingSummary(preferences)
+      expect(summary.totalDataPoints).toBe(2)
+      expect(summary.overallQuality).toBe('Poor')
     })
   })
 })

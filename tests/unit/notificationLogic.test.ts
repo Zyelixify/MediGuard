@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   calculateOverdueTime,
   formatNotificationBody,
+  formatNotificationTitle,
   generateTTSMessage,
   shouldTriggerNotification
 } from '~/utils/notificationLogic'
@@ -57,12 +58,33 @@ describe('notificationLogic', () => {
       const nowTooEarly = new Date('2026-01-30T09:00:00') // 1 hour before
       expect(shouldTriggerNotification(scheduled, nowTooEarly)).toBe(false)
     })
+
+    it('should return false if scheduled time has already passed', () => {
+      const scheduled = new Date('2026-01-30T10:00:00')
+      const nowAfter = new Date('2026-01-30T10:00:01') // 1s after
+      expect(shouldTriggerNotification(scheduled, nowAfter)).toBe(false)
+    })
+  })
+
+  describe('formatNotificationTitle', () => {
+    it('should format dose notification title', () => {
+      expect(formatNotificationTitle('dose')).toBe('💊 Medication Reminder')
+    })
+
+    it('should format overdue notification title', () => {
+      expect(formatNotificationTitle('overdue')).toBe('🚨 Overdue Medication')
+    })
   })
 
   describe('formatNotificationBody', () => {
     it('should format dose body', () => {
       expect(formatNotificationBody('dose', 'Meds', '10mg', '10:00 AM'))
         .toContain('Time to take Meds (10mg) - scheduled for 10:00 AM')
+    })
+
+    it('should format overdue body', () => {
+      expect(formatNotificationBody('overdue', 'Aspirin', '500mg', '2 hours'))
+        .toContain('Aspirin (500mg) is overdue by 2 hours')
     })
   })
 })

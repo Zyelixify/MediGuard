@@ -31,7 +31,9 @@ describe('calculateScheduledDates', () => {
 
   it('should schedule weekly medications correctly (Twice a week -> every 3 days)', () => {
     const dates = calculateScheduledDates(startDate, endDate, 'Twice a week', ['09:00'])
-    // 1st, 4th, 7th
+    // "Twice a week" uses 3-day intervals, resulting in 2-3 occurrences per 7-day period
+    // depending on the date range. In this 7-day test period (Jan 1-7), we get 3 dates:
+    // 1st (start), 4th (+3 days), 7th (+3 days)
     expect(dates).toHaveLength(3)
     expect(dates[0].getDate()).toBe(1)
     expect(dates[1].getDate()).toBe(4)
