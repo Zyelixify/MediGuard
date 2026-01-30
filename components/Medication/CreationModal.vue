@@ -51,7 +51,15 @@ watch(() => props.patientId, (newPatientId) => {
 })
 
 const createMedication = useMutation({
-  mutationFn: $trpc.medication.createMedication.mutate,
+  mutationFn: (input: {
+    name: string
+    dosage: string
+    frequency: FrequencyType
+    startDate: Date
+    endDate: Date
+    accountId: string
+    description?: string
+  }) => $trpc.medication.createMedication.mutate(input),
   mutationKey: ['medication', 'create'],
   onSuccess: async () => {
     useToastMessage('success', 'Medication created successfully')
