@@ -58,10 +58,10 @@ function getNextDose(scheduledMedications: MedicationGetMany['scheduledMedicatio
 
   const now = new Date()
   // Find the next untaken dose
-  const nextDose = scheduledMedications.find(sm => !sm.taken && new Date(sm.scheduledAt) >= now)
+  const nextDose = scheduledMedications.find((sm: MedicationGetMany['scheduledMedications'][number]) => !sm.taken && new Date(sm.scheduledAt) >= now)
 
   // If no future doses, return the first untaken dose
-  return nextDose || scheduledMedications.find(sm => !sm.taken)
+  return nextDose || scheduledMedications.find((sm: MedicationGetMany['scheduledMedications'][number]) => !sm.taken)
 }
 
 function getUpcomingDoses(scheduledMedications: MedicationGetMany['scheduledMedications']) {
@@ -72,7 +72,7 @@ function getUpcomingDoses(scheduledMedications: MedicationGetMany['scheduledMedi
   const now = new Date()
   // Get future untaken doses, limit to 3
   return scheduledMedications
-    .filter(sm => !sm.taken && new Date(sm.scheduledAt) > now)
+    .filter((sm: MedicationGetMany['scheduledMedications'][number]) => !sm.taken && new Date(sm.scheduledAt) > now)
     .slice(0, 3)
 }
 
@@ -80,7 +80,7 @@ function getUpcomingDoses(scheduledMedications: MedicationGetMany['scheduledMedi
 const sortedMedications = computed(() => {
   return props.medications.map(medication => ({
     ...medication,
-    scheduledMedications: medication.scheduledMedications.sort((a, b) => {
+    scheduledMedications: medication.scheduledMedications.sort((a: MedicationGetMany['scheduledMedications'][number], b: MedicationGetMany['scheduledMedications'][number]) => {
       // Sort by date ascending (earliest first)
       return new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
     })

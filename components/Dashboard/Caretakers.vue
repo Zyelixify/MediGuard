@@ -85,7 +85,7 @@ const isRefreshing = computed(() => isFetching.value && !isLoading.value)
 const { $trpc } = useNuxtApp()
 const queryClient = useQueryClient()
 const deleteRelation = useMutation({
-  mutationFn: $trpc.caretakerRelation.delete.mutate,
+  mutationFn: (input: { id: string }) => $trpc.caretakerRelation.delete.mutate(input),
   mutationKey: ['caretakerRelation', 'delete'],
   onSuccess: async () => {
     useToastMessage('success', 'Caretaker removed successfully')
@@ -101,7 +101,7 @@ const deleteRelation = useMutation({
 })
 
 const confirmRelation = useMutation({
-  mutationFn: $trpc.caretakerRelation.confirm.mutate,
+  mutationFn: (input: { id: string }) => $trpc.caretakerRelation.confirm.mutate(input),
   mutationKey: ['caretakerRelation', 'confirm'],
   onSuccess: async () => {
     useToastMessage('success', 'Caretaker confirmed successfully')

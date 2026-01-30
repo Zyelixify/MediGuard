@@ -48,7 +48,7 @@ watch(parseResult, (result) => {
 }, { immediate: true })
 
 const createRelation = useMutation({
-  mutationFn: $trpc.caretakerRelation.create.mutate,
+  mutationFn: (input: { patientId: string, caretakerId: string }) => $trpc.caretakerRelation.create.mutate(input),
   mutationKey: ['caretakerRelation', 'create'],
   onError: () => {
     hasError.value = true
