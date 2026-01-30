@@ -47,4 +47,16 @@ describe('calculateScheduledDates', () => {
     expect(dates[0].getMonth()).toBe(0)
     expect(dates[11].getMonth()).toBe(11)
   })
+
+  it('should throw error if dailyTimes is empty for daily medications', () => {
+    expect(() => {
+      calculateScheduledDates(startDate, endDate, 'Once a day', [])
+    }).toThrow('dailyTimes array cannot be empty for daily medications')
+  })
+
+  it('should throw error if dailyTimes is null for daily medications', () => {
+    expect(() => {
+      calculateScheduledDates(startDate, endDate, 'Twice a day', null as any)
+    }).toThrow('dailyTimes array cannot be empty for daily medications')
+  })
 })
