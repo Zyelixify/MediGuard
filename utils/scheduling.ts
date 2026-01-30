@@ -34,8 +34,8 @@ export function calculateScheduledDates(
     const frequencyConfig: Record<string, number> = {
       'Once a week': 7,
       'Twice a week': 3,
-      'Three times a week': 2, // Note: Logic from original file. 2 days -> 3.5 times a week? "Three times a week" roughly every 2 days?
-      // The original code used 2.
+      'Three times a week': 3, // Approximation: every 3 days (~2.33 times/week). A more exact 3x/week pattern
+      // would require alternating 2- and 3-day intervals, which is not implemented here.
     }
 
     const dayInterval = frequencyConfig[frequency] || 7
