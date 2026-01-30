@@ -3,7 +3,8 @@ import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
-  plugins: [vue() as any],
+  // @ts-expect-error - Type incompatibility between vitest's vite 5.x and nuxt's vite 6.x dependencies
+  plugins: [vue()],
   test: {
     environment: 'happy-dom',
     globals: true,

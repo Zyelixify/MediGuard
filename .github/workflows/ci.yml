@@ -41,7 +41,7 @@ jobs:
         run: pnpm lint
 
       - name: Check Prisma Formatting
-        run: npx prisma format --check
+        run: pnpm exec prisma format --check
 
       - name: Typecheck
         run: pnpm typecheck
