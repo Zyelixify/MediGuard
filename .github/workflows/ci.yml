@@ -94,7 +94,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run Tests
-        run: pnpm test --run
+        run: pnpm test
 
   build:
     name: Build Verification
